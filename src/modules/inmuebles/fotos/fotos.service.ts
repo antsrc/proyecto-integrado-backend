@@ -4,30 +4,52 @@ import { Repository } from 'typeorm';
 import { Foto } from '../entities/foto.entity';
 import { CreateFotoDto } from '../dto/create-foto.dto';
 import { UpdateFotoDto } from '../dto/update-foto.dto';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
-export class FotoService {
+export class FotosService {
   constructor(
     @InjectRepository(Foto)
     private readonly fotoRepository: Repository<Foto>,
   ) {}
 
-  async create(inmuebleId: number, createFotoDto: CreateFotoDto): Promise<Foto> {
-    const foto = this.fotoRepository.create({ ...createFotoDto, inmueble: { id: inmuebleId } });
-    return this.fotoRepository.save(foto);
+  // async create(inmuebleId: number, createFotoDto: CreateFotoDto): Promise<Foto> {
+  //   const foto = this.fotoRepository.create({ ...createFotoDto, inmueble: { id: inmuebleId } });
+  //   return this.fotoRepository.save(foto);
+  // }
+
+  async upload(
+    inmuebleId: number,
+    files: Express.Multer.File[],
+  ): Promise<string[]> {
+    const fotos = files.map((file) => {
+      return this.fotoRepository.create({
+        imagen: file.filename,
+        inmueble: { id: inmuebleId },
+      });
+    });
+    await this.fotoRepository.save(fotos);
+    return fotos.map((foto) => foto.imagen);
   }
 
   async findAll(inmuebleId: number): Promise<Foto[]> {
-    return this.fotoRepository.find({ where: { inmueble: { id: inmuebleId } }, relations: ['inmueble'] });
+    const fotos = await this.fotoRepository.find({
+      where: { inmueble: { id: inmuebleId } },
+    });
+    return fotos.map((foto) => ({
+      ...foto,
+      imagen: `http://localhost:3000/uploads/fotos/inmuebles/${foto.imagen}`,
+    }));
   }
 
-  async findOne(inmuebleId: number, id: number): Promise<{ url: string } | null> {
-    const foto = await this.fotoRepository.findOne({ 
-      where: { id, inmueble: { id: inmuebleId } }, 
-      relations: ['inmueble'] 
+  async findOne(
+    inmuebleId: number,
+    id: number,
+  ): Promise<Foto | null> {
+    return this.fotoRepository.findOne({
+      where: { id, inmueble: { id: inmuebleId } },
     });
-    if (!foto) return null;
-    return { url: `http://localhost:3000/uploads/fotos/${foto.imagen}` };
   }
 
   // async update(inmuebleId: number, id: number, updateFotoDto: UpdateFotoDto): Promise<Foto | null> {

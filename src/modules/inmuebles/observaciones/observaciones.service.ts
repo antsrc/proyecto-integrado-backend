@@ -6,7 +6,7 @@ import { CreateObservacionDto } from '../dto/create-observacion.dto';
 import { UpdateObservacionDto } from '../dto/update-observacion.dto';
 
 @Injectable()
-export class ObservacionService {
+export class ObservacionesService {
   constructor(
     @InjectRepository(Observacion)
     private readonly observacionRepository: Repository<Observacion>,

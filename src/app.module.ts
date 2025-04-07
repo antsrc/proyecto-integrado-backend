@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { InmueblesModule } from './modules/inmuebles/inmuebles.module';
+import { CommonModule } from './common/common.module';
 
 @Module({
   imports: [
@@ -17,8 +17,8 @@ import { InmueblesModule } from './modules/inmuebles/inmuebles.module';
       synchronize: true,
     }),
     InmueblesModule,
+    CommonModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}

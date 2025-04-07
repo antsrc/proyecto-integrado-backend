@@ -6,7 +6,7 @@ import { UpdateIbiDto } from '../dto/update-ibi.dto';
 import { Ibi } from '../entities/ibi.entity';
 
 @Injectable()
-export class IbiService {
+export class IbisService {
   constructor(
     @InjectRepository(Ibi)
     private readonly ibisRepository: Repository<Ibi>,

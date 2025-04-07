@@ -1,12 +1,12 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { ObservacionService } from './observaciones.service';
+import { ObservacionesService } from './observaciones.service';
 import { CreateObservacionDto } from '../dto/create-observacion.dto';
 import { UpdateObservacionDto } from '../dto/update-observacion.dto';
 import { Observacion } from '../entities/observacion.entity';
 
 @Controller('inmuebles/:inmuebleId/observaciones')
-export class ObservacionController {
-  constructor(private readonly observacionService: ObservacionService) {}
+export class ObservacionesController {
+  constructor(private readonly observacionService: ObservacionesService) {}
 
   @Post()
   async create(

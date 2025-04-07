@@ -7,14 +7,14 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
-import { IbiService } from './ibis.service';
+import { IbisService } from './ibis.service';
 import { CreateIbiDto } from '../dto/create-ibi.dto';
 import { UpdateIbiDto } from '../dto/update-ibi.dto';
 import { Ibi } from '../entities/ibi.entity';
 
 @Controller('inmuebles/:inmuebleId/ibis')
-export class IbiController {
-  constructor(private readonly ibiService: IbiService) {}
+export class IbisController {
+  constructor(private readonly ibiService: IbisService) {}
 
   @Post()
   async create(

@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Observacion } from '../entities/observacion.entity';
-import { ObservacionService } from './observaciones.service';
-import { ObservacionController } from './observaciones.controller';
+import { ObservacionesService } from './observaciones.service';
+import { ObservacionesController } from './observaciones.controller';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Observacion])],
-  controllers: [ObservacionController],
-  providers: [ObservacionService],
+  controllers: [ObservacionesController],
+  providers: [ObservacionesService],
 })
 export class ObservacionModule {}
