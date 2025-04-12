@@ -19,7 +19,5 @@ export class UpdateRentaDto extends PartialType(CreateRentaDto) {
   @IsOptional()
   iva?: number;
 
-  @IsDecimal()
-  @IsOptional()
-  total?: number;
+  // Removed inmuebleId to make it non-editable
 }

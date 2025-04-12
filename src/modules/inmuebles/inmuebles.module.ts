@@ -7,6 +7,7 @@ import { ObservacionModule } from './observaciones/observaciones.module';
 import { FotosModule } from './fotos/fotos.module';
 import { SegurosModule } from './seguros/seguros.module';
 import { RentasModule } from './rentas/rentas.module';
+import { IbisModule } from './ibis/ibis.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { RentasModule } from './rentas/rentas.module';
     FotosModule,
     SegurosModule,
     RentasModule,
+    IbisModule
   ],
   controllers: [InmueblesController],
   providers: [InmueblesService],

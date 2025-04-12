@@ -6,9 +6,12 @@ export class Foto {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Inmueble, (inmueble) => inmueble, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Inmueble, { onDelete: 'CASCADE' })
   inmueble: Inmueble;
 
-  @Column({ type: 'varchar' })
+  @Column('integer', { name: 'inmueble_id' })
+  inmuebleId: number;
+
+  @Column({ type: 'char', length: 32 })
   imagen: string;
 }

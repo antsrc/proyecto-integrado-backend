@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { Inmueble } from './inmueble.entity';
 
 @Entity('seguro_inmueble')
@@ -6,13 +6,14 @@ export class Seguro {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Inmueble, (inmueble) => inmueble.id, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Inmueble, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'inmueble_id' })
   inmueble: Inmueble;
 
-  @Column('integer', { name: 'inmueble_id'})
+  @Column('integer', { name: 'inmueble_id' })
   inmuebleId: number;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', length: 100 })
   nombre: string;
 
   @Column({ type: 'date' })
@@ -21,9 +22,9 @@ export class Seguro {
   @Column({ type: 'date' })
   fecha_vencimiento: Date;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', length: 15 })
   tfno_asistencia: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', length: 20 })
   num_poliza: string;
 }

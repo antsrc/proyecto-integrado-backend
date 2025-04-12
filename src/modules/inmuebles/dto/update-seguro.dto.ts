@@ -21,5 +21,5 @@ export class UpdateSeguroDto extends PartialType(CreateSeguroDto) {
 
   @IsString()
   @IsOptional()
-  poliza_doc?: string;
+  num_poliza?: string;
 }

@@ -10,8 +10,7 @@ import {
   UploadedFiles,
 } from '@nestjs/common';
 import { FotosService } from './fotos.service';
-import { CreateFotoDto } from '../dto/create-foto.dto';
-import { UpdateFotoDto } from '../dto/update-foto.dto';
+
 import { Foto } from '../entities/foto.entity';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import * as path from 'path';

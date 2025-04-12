@@ -4,8 +4,4 @@ export class UpdateObservacionDto {
   @IsString()
   @IsOptional()
   comentario?: string;
-
-  @IsDateString()
-  @IsOptional()
-  fecha?: string;
 }

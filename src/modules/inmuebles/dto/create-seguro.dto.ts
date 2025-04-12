@@ -23,5 +23,5 @@ export class CreateSeguroDto {
 
   @IsString()
   @IsNotEmpty()
-  poliza_doc: string;
+  num_poliza: string;
 }

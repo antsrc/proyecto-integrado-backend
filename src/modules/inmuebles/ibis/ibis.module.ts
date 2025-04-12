@@ -9,4 +9,4 @@ import { IbisController } from './ibis.controller';
   controllers: [IbisController],
   providers: [IbisService],
 })
-export class IbiModule {}
+export class IbisModule {}

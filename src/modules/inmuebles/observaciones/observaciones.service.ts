@@ -13,22 +13,34 @@ export class ObservacionesService {
   ) {}
 
   async create(inmuebleId: number, createObservacionDto: CreateObservacionDto): Promise<Observacion> {
-    const observacion = this.observacionRepository.create({ ...createObservacionDto, inmueble: { id: inmuebleId } });
+    const observacion = this.observacionRepository.create({ 
+      ...createObservacionDto, 
+      inmueble: { id: inmuebleId },
+      fecha: new Date()
+    });
     return this.observacionRepository.save(observacion);
   }
 
   async findAll(inmuebleId: number): Promise<Observacion[]> {
-    return this.observacionRepository.find({ where: { inmueble: { id: inmuebleId } }, relations: ['inmueble'] });
+    return this.observacionRepository.find({ 
+      where: { inmueble: { id: inmuebleId } }
+    });
   }
 
   async findOne(inmuebleId: number, id: number): Promise<Observacion | null> {
-    return this.observacionRepository.findOne({ where: { id, inmueble: { id: inmuebleId } }, relations: ['inmueble'] });
+    return this.observacionRepository.findOne({ 
+      where: { id, inmueble: { id: inmuebleId } }
+    });
   }
 
   async update(inmuebleId: number, id: number, updateObservacionDto: UpdateObservacionDto): Promise<Observacion | null> {
     const observacion = await this.findOne(inmuebleId, id);
     if (!observacion) return null;
-    await this.observacionRepository.update(id, { ...updateObservacionDto, inmueble: { id: inmuebleId } });
+    await this.observacionRepository.update(id, { 
+      ...updateObservacionDto, 
+      inmueble: { id: inmuebleId },
+      fecha: new Date()
+    });
     return this.findOne(inmuebleId, id);
   }
 

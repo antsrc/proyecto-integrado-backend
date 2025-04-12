@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { Inmueble } from './inmueble.entity';
 
 @Entity('observacion_inmueble')
@@ -6,12 +6,13 @@ export class Observacion {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Inmueble, (inmueble) => inmueble, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Inmueble, { onDelete: 'CASCADE', eager: false, nullable: false })
+  @JoinColumn({ name: 'inmueble_id' })
   inmueble: Inmueble;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'text' })
   comentario: string;
 
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'date' })
   fecha: Date;
 }

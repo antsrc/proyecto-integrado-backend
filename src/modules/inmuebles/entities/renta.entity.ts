@@ -10,10 +10,10 @@ export class Renta {
   @JoinColumn({ name: 'inmueble_id' })
   inmueble: Inmueble;
 
-  @Column('integer', { name: 'inmueble_id'})
+  @Column('integer', { name: 'inmueble_id' })
   inmuebleId: number;
 
-  @Column('integer')
+  @Column('year')
   ano: number;
 
   @Column('decimal', { precision: 6, scale: 2 })
@@ -25,6 +25,14 @@ export class Renta {
   @Column('decimal', { precision: 4, scale: 2 })
   iva: number;
 
-  @Column({ type: 'decimal', precision: 9, scale: 2, asExpression: 'base + comunidad + iva' })
+  @Column({
+    type: 'decimal',
+    precision: 9,
+    scale: 2,
+    generatedType: 'STORED',
+    asExpression: 'base + comunidad + iva',
+    insert: false,
+    update: false,
+  })
   total: number;
 }

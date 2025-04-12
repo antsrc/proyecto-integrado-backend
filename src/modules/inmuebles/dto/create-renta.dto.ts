@@ -17,10 +17,6 @@ export class CreateRentaDto {
   @IsNotEmpty()
   iva: number;
 
-  @IsDecimal()
-  @IsNotEmpty()
-  total: number;
-
   @IsInt()
   @IsNotEmpty()
   inmuebleId: number;
