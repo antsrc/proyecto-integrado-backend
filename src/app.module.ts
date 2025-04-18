@@ -1,8 +1,14 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { InmueblesModule } from './modules/inmuebles/inmuebles.module';
-import { CommonModule } from './common/common.module';
+import { InmuebleModule } from './modules/inmuebles/inmueble.module';
+import { ClienteModule } from './modules/clientes/cliente.module';
+import { ProveedorModule } from './modules/proveedores/proveedor.module';
+import { AlquilerModule } from './modules/alquileres/alquiler.module';
+import { ReformaModule } from './modules/reformas/reforma.module';
+import { IncidenciaModule } from './modules/incidencias/incidencias.module';
+import { MensualidadModule } from './modules/mensualidades/mensualidad.module';
+import { UsuarioModule } from './modules/usuarios/usuario.module';
 
 @Module({
   imports: [
@@ -16,8 +22,14 @@ import { CommonModule } from './common/common.module';
       autoLoadEntities: true,
       synchronize: true,
     }),
-    InmueblesModule,
-    CommonModule,
+    InmuebleModule,
+    ClienteModule,
+    ProveedorModule,
+    AlquilerModule,
+    ReformaModule,
+    IncidenciaModule,
+    MensualidadModule,
+    UsuarioModule
   ],
   controllers: [AppController],
 })
