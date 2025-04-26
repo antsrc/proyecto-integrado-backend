@@ -4,10 +4,12 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
+  OneToOne,
 } from 'typeorm';
 import { Alquiler } from '../alquileres/alquiler.entity';
 import { Proveedor } from '../proveedores/proveedor.entity';
 import { Tipo } from './submodules/tipos/tipo.entity';
+import { Reparacion } from './submodules/reparaciones/reparacion.entity';
 
 @Entity('incidencia')
 export class Incidencia {
@@ -25,6 +27,9 @@ export class Incidencia {
   @ManyToOne(() => Tipo)
   @JoinColumn({ name: 'tipo_id' })
   tipo: Tipo;
+
+  @OneToOne(() => Reparacion, (reparacion) => reparacion.incidencia)
+  reparacion: Reparacion | null;
 
   @Column({ length: 100 })
   descripcion: string;

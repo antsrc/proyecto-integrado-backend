@@ -16,7 +16,7 @@ import { Tipo } from './tipo.entity';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
 @ApiTags('Tipos de incidencia')
-@Controller('incidencias/tipos')
+@Controller('tipos-incidencia')
 export class TipoController {
   constructor(private readonly tipoService: TipoService) {}
 

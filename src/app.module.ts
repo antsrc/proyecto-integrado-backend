@@ -9,6 +9,8 @@ import { ReformaModule } from './modules/reformas/reforma.module';
 import { IncidenciaModule } from './modules/incidencias/incidencias.module';
 import { MensualidadModule } from './modules/mensualidades/mensualidad.module';
 import { UsuarioModule } from './modules/usuarios/usuario.module';
+import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -22,6 +24,9 @@ import { UsuarioModule } from './modules/usuarios/usuario.module';
       autoLoadEntities: true,
       synchronize: true,
     }),
+    ConfigModule.forRoot({
+      isGlobal: true, // <--- disponible en toda la app
+    }),
     InmuebleModule,
     ClienteModule,
     ProveedorModule,
@@ -29,7 +34,8 @@ import { UsuarioModule } from './modules/usuarios/usuario.module';
     ReformaModule,
     IncidenciaModule,
     MensualidadModule,
-    UsuarioModule
+    UsuarioModule,
+    AuthModule
   ],
   controllers: [AppController],
 })

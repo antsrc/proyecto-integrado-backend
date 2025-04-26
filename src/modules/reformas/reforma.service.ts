@@ -23,7 +23,13 @@ export class ReformaService {
   }
 
   async findAll(): Promise<Reforma[]> {
-    return this.reformaRepository.find();
+    return this.reformaRepository
+      .createQueryBuilder('reforma')
+      .leftJoin('reforma.inmueble', 'inmueble')
+      .leftJoin('reforma.proveedor', 'proveedor')
+      .addSelect(['inmueble.id', 'inmueble.codigo'])
+      .addSelect(['proveedor.id', 'proveedor.nombre'])
+      .getMany();
   }
 
   async findOne(id: number): Promise<Reforma | null> {
@@ -31,15 +37,21 @@ export class ReformaService {
   }
 
   async findByInmueble(inmuebleId: number): Promise<Reforma[]> {
-    return this.reformaRepository.find({
-      where: { inmueble: { id: inmuebleId } },
-    });
+    return this.reformaRepository
+      .createQueryBuilder('reforma')
+      .leftJoin('reforma.proveedor', 'proveedor')
+      .addSelect(['proveedor.id', 'proveedor.nombre'])
+      .where('reforma.inmueble = :inmuebleId', { inmuebleId })
+      .getMany();
   }
 
   async findByProveedor(proveedorId: number): Promise<Reforma[]> {
-    return this.reformaRepository.find({
-      where: { proveedor: { id: proveedorId } },
-    });
+    return this.reformaRepository
+      .createQueryBuilder('reforma')
+      .leftJoin('reforma.inmueble', 'inmueble')
+      .addSelect(['inmueble.id', 'inmueble.codigo'])
+      .where('reforma.proveedor = :proveedorId', { proveedorId })
+      .getMany();
   }
 
   async update(id: number, dto: UpdateReformaDto): Promise<Reforma | null> {

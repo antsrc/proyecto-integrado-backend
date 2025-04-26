@@ -17,7 +17,6 @@ export class Usuario {
   })
   rol: RolUsuario;
   
-
   @Column({ length: 30, unique: true })
   nombre: string;
 

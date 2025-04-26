@@ -21,7 +21,15 @@ export class MensualidadService {
   }
 
   async findAll(): Promise<Mensualidad[]> {
-    return this.mensualidadRepository.find();
+    return this.mensualidadRepository
+      .createQueryBuilder('mensualidad')
+      .leftJoin('mensualidad.alquiler', 'alquiler')
+      .leftJoin('alquiler.cliente', 'cliente')
+      .leftJoin('alquiler.inmueble', 'inmueble')
+      .addSelect(['alquiler.id', 'alquiler.codContrato'])
+      .addSelect(['cliente.id', 'cliente.nombreCompleto'])
+      .addSelect(['inmueble.id', 'inmueble.codigo'])
+      .getMany();
   }  
 
   async findOne(id: number): Promise<Mensualidad | null> {
@@ -37,18 +45,22 @@ export class MensualidadService {
   async findByCliente(clienteId: number): Promise<Mensualidad[]> {
     return this.mensualidadRepository
       .createQueryBuilder('mensualidad')
-      .innerJoin('mensualidad.alquiler', 'alquiler')
-      .innerJoin('alquiler.cliente', 'cliente')
-      .where('cliente.id = :clienteId', { clienteId })
+      .leftJoin('mensualidad.alquiler', 'alquiler')
+      .leftJoin('alquiler.inmueble', 'inmueble')
+      .addSelect(['alquiler.id', 'alquiler.codContrato'])
+      .addSelect(['inmueble.id', 'inmueble.codigo'])
+      .where('alquiler.cliente = :clienteId', { clienteId })
       .getMany();
   }
 
   async findByInmueble(inmuebleId: number): Promise<Mensualidad[]> {
     return this.mensualidadRepository
       .createQueryBuilder('mensualidad')
-      .innerJoin('mensualidad.alquiler', 'alquiler')
-      .innerJoin('alquiler.inmueble', 'inmueble')
-      .where('inmueble.id = :inmuebleId', { inmuebleId })
+      .leftJoin('mensualidad.alquiler', 'alquiler')
+      .leftJoin('alquiler.cliente', 'cliente')
+      .addSelect(['alquiler.id', 'alquiler.codContrato'])
+      .addSelect(['cliente.id', 'cliente.nombreCompleto'])
+      .where('alquiler.inmueble = :inmuebleId', { inmuebleId })
       .getMany();
   }  
 

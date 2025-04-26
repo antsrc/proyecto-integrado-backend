@@ -26,7 +26,20 @@ export class IncidenciaService {
   }
 
   async findAll(): Promise<Incidencia[]> {
-    return this.incidenciaRepository.find();
+    return this.incidenciaRepository
+      .createQueryBuilder('incidencia')
+      .leftJoin('incidencia.proveedorAvisado', 'proveedorAvisado')
+      .leftJoinAndSelect('incidencia.reparacion', 'reparacion')
+      .leftJoin('reparacion.proveedor', 'proveedorReparacion')
+      .leftJoin('incidencia.alquiler', 'alquiler')
+      .leftJoin('alquiler.cliente', 'cliente')
+      .leftJoin('alquiler.inmueble', 'inmueble')
+      .addSelect(['proveedorAvisado.id', 'proveedorAvisado.nombre'])
+      .addSelect(['proveedorReparacion.id', 'proveedorReparacion.nombre'])
+      .addSelect(['alquiler.id', 'alquiler.codContrato'])
+      .addSelect(['cliente.id', 'cliente.nombreCompleto'])
+      .addSelect(['inmueble.id', 'inmueble.codigo'])
+      .getMany();
   }
 
   async findOne(id: number): Promise<Incidencia | null> {
@@ -36,9 +49,36 @@ export class IncidenciaService {
   async findByCliente(clienteId: number): Promise<Incidencia[]> {
     return this.incidenciaRepository
       .createQueryBuilder('incidencia')
-      .innerJoin('incidencia.alquiler', 'alquiler')
-      .innerJoin('alquiler.cliente', 'cliente')
+      .leftJoin('incidencia.proveedorAvisado', 'proveedorAvisado')
+      .leftJoinAndSelect('incidencia.reparacion', 'reparacion')
+      .leftJoin('reparacion.proveedor', 'proveedorReparacion')
+      .leftJoin('incidencia.alquiler', 'alquiler')
+      .leftJoin('alquiler.cliente', 'cliente')
+      .leftJoin('alquiler.inmueble', 'inmueble')
       .where('cliente.id = :clienteId', { clienteId })
+      .addSelect(['proveedorAvisado.id', 'proveedorAvisado.nombre'])
+      .addSelect(['proveedorReparacion.id', 'proveedorReparacion.nombre'])
+      .addSelect(['alquiler.id', 'alquiler.codContrato'])
+      .addSelect(['cliente.id', 'cliente.nombreCompleto'])
+      .addSelect(['inmueble.id', 'inmueble.codigo'])
+      .getMany();
+  }
+
+  async findByInmueble(inmuebleId: number): Promise<Incidencia[]> {
+    return this.incidenciaRepository
+      .createQueryBuilder('incidencia')
+      .leftJoin('incidencia.proveedorAvisado', 'proveedorAvisado')
+      .leftJoinAndSelect('incidencia.reparacion', 'reparacion')
+      .leftJoin('reparacion.proveedor', 'proveedorReparacion')
+      .leftJoin('incidencia.alquiler', 'alquiler')
+      .leftJoin('alquiler.cliente', 'cliente')
+      .leftJoin('alquiler.inmueble', 'inmueble')
+      .where('inmueble.id = :inmuebleId', { inmuebleId })
+      .addSelect(['proveedorAvisado.id', 'proveedorAvisado.nombre'])
+      .addSelect(['proveedorReparacion.id', 'proveedorReparacion.nombre'])
+      .addSelect(['alquiler.id', 'alquiler.codContrato'])
+      .addSelect(['cliente.id', 'cliente.nombreCompleto'])
+      .addSelect(['inmueble.id', 'inmueble.codigo'])
       .getMany();
   }
 

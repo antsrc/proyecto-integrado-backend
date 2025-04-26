@@ -8,12 +8,17 @@ import {
   Body,
   ParseIntPipe,
   NotFoundException,
+  UseInterceptors,
+  UploadedFile,
+  ConflictException,
 } from '@nestjs/common';
 import { AlquilerService } from './alquiler.service';
 import { CreateAlquilerDto } from './dto/create-alquiler.dto';
 import { UpdateAlquilerDto } from './dto/update-alquiler.dto';
 import { Alquiler } from './alquiler.entity';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiConsumes, ApiBody } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { uploadContratoOptions } from './options/upload-contrato.options';
 
 @ApiTags('Alquileres')
 @Controller('alquileres')
@@ -22,9 +27,65 @@ export class AlquilerController {
 
   @Post()
   @ApiOperation({ summary: 'Crear un nuevo alquiler' })
-  create(@Body() dto: CreateAlquilerDto): Promise<Alquiler> {
-    return this.alquilerService.create(dto);
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        documento: {
+          type: 'string',
+          format: 'binary',
+        },
+        clienteId: { type: 'number' },
+        inmuebleId: { type: 'number' },
+        fechaAlta: { type: 'string', format: 'date-time' },
+        fechaBaja: { type: 'string', format: 'date-time' },
+        fianza: { type: 'number' },
+        codContrato: { type: 'string' },
+      },
+      required: [
+        'documento',
+        'clienteId',
+        'inmuebleId',
+        'fechaAlta',
+        'fianza',
+        'codContrato',
+      ],
+    },
+  })
+  @UseInterceptors(FileInterceptor('documento', uploadContratoOptions))
+  async create(
+    @Body() dto: CreateAlquilerDto,
+    @UploadedFile() documento: Express.Multer.File,
+  ): Promise<Alquiler> {
+    return this.alquilerService.create(dto, documento?.filename);
   }
+
+@Patch(':id/contrato')
+@ApiOperation({ summary: 'Actualizar el contrato (PDF) de un alquiler' })
+@ApiConsumes('multipart/form-data')
+@ApiBody({
+  description: 'Nuevo documento PDF del contrato',
+  type: 'multipart/form-data',
+  schema: {
+    type: 'object',
+    properties: {
+      documento: {
+        type: 'string',
+        format: 'binary',
+      },
+    },
+    required: ['documento'],
+  },
+})
+@UseInterceptors(FileInterceptor('documento', uploadContratoOptions))
+async updateContrato(
+  @Param('id') id: string,
+  @UploadedFile() documento: Express.Multer.File,
+) {
+  const nuevoNombre = documento?.filename;
+  return this.alquilerService.updateContrato(+id, nuevoNombre);
+}
 
   @Get()
   @ApiOperation({ summary: 'Listar todos los alquileres' })

@@ -20,16 +20,6 @@ import {
   export class ReparacionController {
     constructor(private readonly reparacionService: ReparacionService) {}
   
-    @Get()
-    @ApiOperation({ summary: 'Obtener la reparación asociada a una incidencia' })
-    async findByIncidencia(
-      @Param('incidenciaId', ParseIntPipe) incidenciaId: number,
-    ): Promise<Reparacion> {
-      const reparacion = await this.reparacionService.findByIncidencia(incidenciaId);
-      if (!reparacion) throw new NotFoundException();
-      return reparacion;
-    }
-  
     @Post()
     @ApiOperation({ summary: 'Crear una reparación para una incidencia' })
     create(

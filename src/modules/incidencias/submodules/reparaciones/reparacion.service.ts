@@ -43,9 +43,4 @@ export class ReparacionService {
     return reparacion;
   }
 
-  async findByIncidencia(incidenciaId: number): Promise<Reparacion | null> {
-    return this.reparacionRepository.findOne({
-      where: { incidencia: { id: incidenciaId } },
-    });
-  }
 }

@@ -8,8 +8,8 @@ export class Cliente {
   @Column({ type: 'char', length: 9, unique: true })
   dni: string;
 
-  @Column({ length: 100 })
-  nombre_completo: string;
+  @Column({ length: 100, name: 'nombre_completo' })
+  nombreCompleto: string;
 
   @Column({ length: 30 })
   telefono: string;

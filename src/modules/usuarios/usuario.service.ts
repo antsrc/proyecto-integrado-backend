@@ -23,11 +23,20 @@ export class UsuarioService {
   }
 
   async findAll(): Promise<Usuario[]> {
-    return this.usuarioRepository.find();
+    return this.usuarioRepository.find({
+      select: ['id', 'nombre', 'rol'],
+    });
   }
 
   async findOne(id: number): Promise<Usuario | null> {
-    return this.usuarioRepository.findOne({ where: { id } });
+    return this.usuarioRepository.findOne({
+      where: { id },
+      select: ['id', 'nombre', 'rol']
+    });
+  }
+
+  async findByNombre(nombre: string): Promise<Usuario | null> {
+    return this.usuarioRepository.findOne({ where: { nombre } });
   }
 
   async update(id: number, dto: UpdateUsuarioDto): Promise<Usuario | null> {
