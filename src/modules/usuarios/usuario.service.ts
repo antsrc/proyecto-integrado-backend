@@ -13,13 +13,14 @@ export class UsuarioService {
     private readonly usuarioRepository: Repository<Usuario>,
   ) {}
 
-  async create(dto: CreateUsuarioDto): Promise<Usuario> {
+  async create(dto: CreateUsuarioDto): Promise<Usuario | null> {
     const hashedPassword = await bcrypt.hash(dto.contrasena, 10);
     const usuario = this.usuarioRepository.create({
       nombre: dto.nombre,
       contrasena: hashedPassword,
     });
-    return this.usuarioRepository.save(usuario);
+    const saved = await this.usuarioRepository.save(usuario);
+    return this.findOne(saved.id);
   }
 
   async findAll(): Promise<Usuario[]> {

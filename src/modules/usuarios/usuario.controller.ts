@@ -22,7 +22,7 @@ export class UsuarioController {
 
   @Post()
   @ApiOperation({ summary: 'Crear usuario (administrativo)' })
-  create(@Body() dto: CreateUsuarioDto): Promise<Usuario> {
+  create(@Body() dto: CreateUsuarioDto): Promise<Usuario | null> {
     return this.usuarioService.create(dto);
   }
 
