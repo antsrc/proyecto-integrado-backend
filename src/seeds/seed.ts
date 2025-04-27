@@ -42,7 +42,7 @@ const seedDatabase = async (dataSource: DataSource) => {
   for (const cliente of [
     {
       dni: '12345678A',
-      nombre_completo: 'Juan Pérez',
+      nombreCompleto: 'Juan Pérez',
       telefono: '600123456',
       email: 'juan.perez@example.com',
       num_cuent: 'ES7620770024003102575766',
@@ -51,7 +51,7 @@ const seedDatabase = async (dataSource: DataSource) => {
     },
     {
       dni: '87654321B',
-      nombre_completo: 'Ana García',
+      nombreCompleto: 'Ana García',
       telefono: '600654321',
       email: 'ana.garcia@example.com',
       num_cuent: 'ES9121000418450200051332',
