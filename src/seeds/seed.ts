@@ -444,13 +444,15 @@ const seedDatabase = async (dataSource: DataSource) => {
   }
 };
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 const AppDataSource = new DataSource({
   type: 'mariadb',
-  host: 'localhost',
-  port: 3306,
-  username: 'root',
-  password: 'root',
-  database: 'gestion_inmobiliaria',
+  host: isProduction ? process.env.DB_HOST : 'localhost',
+  port: isProduction ? Number(process.env.DB_PORT) : 3306,
+  username: isProduction ? process.env.DB_USER : 'root',
+  password: isProduction ? process.env.DB_PASSWORD : 'root',
+  database: isProduction ? process.env.DB_NAME : 'gestion_inmobiliaria',
   synchronize: true,
   entities: [
     Alquiler,
