@@ -25,7 +25,7 @@ import { AuthModule } from './auth/auth.module';
       synchronize: true,
     }),
     ConfigModule.forRoot({
-      isGlobal: true, // <--- disponible en toda la app
+      isGlobal: true,
     }),
     InmuebleModule,
     ClienteModule,
