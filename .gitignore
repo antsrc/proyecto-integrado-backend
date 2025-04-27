@@ -4,6 +4,7 @@
 /build
 /uploads/fotos/*
 /uploads/contratos/*
+!/uploads/contratos/.gitkeep
 
 # Logs
 logs
