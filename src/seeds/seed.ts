@@ -18,6 +18,33 @@ import { Tipo as TipoIncidencia } from '../modules/incidencias/submodules/tipos/
 import { Reparacion } from 'src/modules/incidencias/submodules/reparaciones/reparacion.entity';
 
 const seedDatabase = async (dataSource: DataSource) => {
+
+  await dataSource.query('SET FOREIGN_KEY_CHECKS = 0');
+
+  const dbName = process.env.DB_NAME || 'gestion_inmobiliaria';
+
+  const tables: { TABLE_NAME: string }[] = await dataSource.query(`
+    SELECT TABLE_NAME 
+    FROM information_schema.tables 
+    WHERE table_schema = '${dbName}'
+  `);  
+
+  for (const { TABLE_NAME } of tables) {
+    if (TABLE_NAME !== 'migrations') {
+      await dataSource.query(`DELETE FROM \`${TABLE_NAME}\``);
+    }
+  }
+
+  for (const { TABLE_NAME } of tables) {
+    if (TABLE_NAME !== 'migrations') {
+      await dataSource.query(`TRUNCATE TABLE \`${TABLE_NAME}\``);
+    }
+  }
+
+  await dataSource.query('SET FOREIGN_KEY_CHECKS = 1');
+
+  console.log('Base de datos reseteada');
+
   const clienteRepository = dataSource.getRepository(Cliente);
   const inmuebleRepository = dataSource.getRepository(Inmueble);
   const alquilerRepository = dataSource.getRepository(Alquiler);
