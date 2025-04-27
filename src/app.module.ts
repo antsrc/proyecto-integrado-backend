@@ -15,12 +15,12 @@ import { AuthModule } from './auth/auth.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      type: 'mariadb',
-      host: 'localhost',
-      port: 3306,
-      username: 'root',
-      password: 'root',
-      database: 'gestion_inmobiliaria',
+      type: process.env.NODE_ENV === 'production' ? 'mysql' : 'mariadb',
+      host: process.env.DB_HOST || 'localhost',
+      port: parseInt(process.env.DB_PORT ?? '3306'),
+      username: process.env.DB_USER || 'root',
+      password: process.env.DB_PASSWORD || 'root',
+      database: process.env.DB_NAME || 'gestion_inmobiliaria',
       autoLoadEntities: true,
       synchronize: true,
     }),
