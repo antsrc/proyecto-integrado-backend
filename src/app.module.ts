@@ -23,6 +23,8 @@ import { AuthModule } from './auth/auth.module';
       database: process.env.DB_NAME || 'gestion_inmobiliaria',
       autoLoadEntities: true,
       synchronize: true,
+      retryAttempts: 10,
+      retryDelay: 3000
     }),
     ConfigModule.forRoot({
       isGlobal: true,
