@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
   IsString,
   IsNumber,
@@ -45,6 +46,7 @@ export class CreateInmuebleDto {
   tipo: string;
 
   @ApiProperty()
+  @Type(() => Number)
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(1)
   metros_cuadrados: number;

@@ -12,21 +12,29 @@ export class AuthService {
 
   async validateUser(nombre: string, contrasena: string) {
     const usuario = await this.usuarioService.findByNombre(nombre);
-    if (!usuario) throw new UnauthorizedException('Credenciales inválidas');
+    if (!usuario) throw new UnauthorizedException();
     const passwordValid = await bcrypt.compare(contrasena, usuario.contrasena);
     if (!passwordValid)
-      throw new UnauthorizedException('Credenciales inválidas');
+      throw new UnauthorizedException();
     return usuario;
   }
 
   async login(nombre: string, contrasena: string) {
     const usuario = await this.validateUser(nombre, contrasena);
-    const payload = {
-      sub: usuario.id,
-      rol: usuario.rol,
-    };
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
+    const payload = { nombre: usuario.nombre, rol: usuario.rol };
+    const token = this.jwtService.sign(payload);
+    return token;
+  }
+
+  getUser(token?: string) {
+    if (!token) throw new UnauthorizedException();
+  
+    try {
+      const payload = this.jwtService.verify(token);
+      const { nombre, rol } = payload;
+      return { nombre, rol };
+    } catch {
+      throw new UnauthorizedException();
+    }
   }
 }

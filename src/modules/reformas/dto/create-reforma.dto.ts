@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform, Type } from 'class-transformer';
 import {
   IsDateString,
   IsNotEmpty,
@@ -12,10 +13,12 @@ import {
 export class CreateReformaDto {
   @ApiProperty()
   @IsNumber()
+  @Type(() => Number)
   inmuebleId: number;
 
   @ApiProperty()
   @IsNumber()
+  @Type(() => Number)
   proveedorId: number;
 
   @ApiProperty()
@@ -36,11 +39,13 @@ export class CreateReformaDto {
   @ApiProperty()
   @IsOptional()
   @IsDateString()
+  @Transform(({ value }) => (value === '' ? undefined : value))
   fechaFin?: Date;
 
   @ApiProperty()
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0)
+  @Type(() => Number)
   importe: number;
 
   @ApiProperty()

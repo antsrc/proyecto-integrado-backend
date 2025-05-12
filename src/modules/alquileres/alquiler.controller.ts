@@ -18,7 +18,7 @@ import { UpdateAlquilerDto } from './dto/update-alquiler.dto';
 import { Alquiler } from './alquiler.entity';
 import { ApiTags, ApiOperation, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { uploadContratoOptions } from './options/upload-contrato.options';
+import { uploadPdfOptions } from 'src/shared/options/upload-pdf.options';
 
 @ApiTags('Alquileres')
 @Controller('alquileres')
@@ -53,7 +53,7 @@ export class AlquilerController {
       ],
     },
   })
-  @UseInterceptors(FileInterceptor('documento', uploadContratoOptions))
+  @UseInterceptors(FileInterceptor('documento', uploadPdfOptions))
   async create(
     @Body() dto: CreateAlquilerDto,
     @UploadedFile() documento: Express.Multer.File,
@@ -78,7 +78,7 @@ export class AlquilerController {
     required: ['documento'],
   },
 })
-@UseInterceptors(FileInterceptor('documento', uploadContratoOptions))
+@UseInterceptors(FileInterceptor('documento', uploadPdfOptions))
 async updateContrato(
   @Param('id') id: string,
   @UploadedFile() documento: Express.Multer.File,

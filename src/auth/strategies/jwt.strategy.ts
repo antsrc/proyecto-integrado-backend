@@ -10,12 +10,17 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!secret) {
       throw new Error('Falta JWT_SECRET en el archivo .env');
     }
+
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: (req) => {
+        if (!req || !req.cookies) return null;
+        return req.cookies['token'];
+      },
       ignoreExpiration: false,
       secretOrKey: secret,
     });
   }
+
   async validate(payload: any) {
     return {
       id: payload.sub,

@@ -48,7 +48,7 @@ export class AlquilerService {
   }
 
   async updateContrato(id: number, contratoTmp: string): Promise<string> {
-    const alquiler = await this.alquilerRepository.findOne({ where: { id } });
+    const alquiler = await this.findOne(id);
     if (!alquiler) {
       throw new NotFoundException('Alquiler no encontrado');
     }
