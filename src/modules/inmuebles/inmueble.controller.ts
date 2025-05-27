@@ -9,7 +9,6 @@ import {
   ParseIntPipe,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { InmuebleService } from './inmueble.service';
@@ -18,7 +17,7 @@ import { UpdateInmuebleDto } from './dto/update-inmueble.dto';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { RequestUser } from 'src/common/decorators/current-user.decorator';
 
-@UseGuards(AuthGuard('jwt'), RolesGuard)
+@UseGuards(RolesGuard)
 @Roles('user')
 @ApiTags('Inmuebles')
 @Controller('inmuebles')
