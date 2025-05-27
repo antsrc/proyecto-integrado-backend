@@ -10,6 +10,10 @@ import { CreateReformaDto } from './dto/create-reforma.dto';
 import { UpdateReformaDto } from './dto/update-reforma.dto';
 import { join } from 'path';
 import { promises as fs } from 'fs';
+import { readdir } from 'fs/promises';
+import { auditLogger } from 'src/common/loggers/audit.logger';
+import { errorLogger } from 'src/common/loggers/error.logger';
+import { validarFechas } from 'src/common/validators/fechas.validator';
 
 @Injectable()
 export class ReformaService {
@@ -21,9 +25,13 @@ export class ReformaService {
     private readonly reformaRepository: Repository<Reforma>,
   ) {}
 
-  async create(dto: CreateReformaDto, facturaTmp: string): Promise<Reforma> {
-    const rutaTmp = join(this.dirTmp, facturaTmp);
-    const rutaFinal = join(this.dirFacturas, `${dto.codFactura}.pdf`);
+  async create(
+    dto: CreateReformaDto,
+    user: { nombre: string },
+  ): Promise<void> {
+    if (dto.fechaInicio && dto.fechaFin) {
+      validarFechas(new Date(dto.fechaInicio), new Date(dto.fechaFin));
+    }
 
     const reforma = this.reformaRepository.create({
       ...dto,
@@ -31,20 +39,14 @@ export class ReformaService {
       proveedor: { id: dto.proveedorId } as any,
     });
 
-    try {
-      const saved = await this.reformaRepository.save(reforma);
-      await fs.rename(rutaTmp, rutaFinal);
-      return saved;
-    } catch (error) {
-      try {
-        await fs.unlink(rutaTmp);
-      } catch (unlinkErr) {
-        console.error('Error borrando archivo temporal:', unlinkErr.message);
-      }
-      throw new InternalServerErrorException(
-        'Error al guardar la reforma o mover el archivo de factura.',
-      );
-    }
+    const saved = await this.reformaRepository.save(reforma);
+
+    auditLogger.info({
+      action: 'CREATE_REFORMA',
+      id: saved.id,
+      user: user.nombre,
+      data: dto,
+    });
   }
 
   async updateFactura(id: number, facturaTmp: string): Promise<string> {
@@ -52,45 +54,13 @@ export class ReformaService {
     if (!reforma) {
       throw new NotFoundException('Reforma no encontrada');
     }
-
     const rutaTmp = join(this.dirTmp, facturaTmp);
-    const rutaFinal = join(this.dirFacturas, `${reforma.codFactura}.pdf`);
-
+    const rutaFinal = join(this.dirFacturas, `${id}.pdf`);
     try {
       await fs.rename(rutaTmp, rutaFinal);
       return rutaFinal;
     } catch (error) {
-      console.error('Error al actualizar la factura:', error);
-      throw new InternalServerErrorException(
-        'Error al actualizar la factura de la reforma.',
-      );
-    }
-  }
-
-  async update(id: number, dto: UpdateReformaDto): Promise<Reforma | null> {
-    const reforma = await this.findOne(id);
-    if (!reforma) return null;
-
-    try {
-      const result = await this.reformaRepository.update(id, dto);
-      if (
-        dto.codFactura &&
-        (result.affected ?? 0) > 0 &&
-        dto.codFactura !== reforma.codFactura
-      ) {
-        const rutaActual = join(this.dirFacturas, `${reforma.codFactura}.pdf`);
-        const rutaFinal = join(this.dirFacturas, `${dto.codFactura}.pdf`);
-
-        try {
-          await fs.rename(rutaActual, rutaFinal);
-        } catch (error) {
-          console.warn('No se pudo renombrar la factura:', error.message);
-        }
-      }
-      return this.findOne(id);
-    } catch (error) {
-      console.error('Error al actualizar reforma:', error);
-      throw new Error('Error actualizando la reforma.');
+      throw new InternalServerErrorException('Error al actualizar la factura', error);
     }
   }
 
@@ -99,39 +69,100 @@ export class ReformaService {
       .createQueryBuilder('reforma')
       .leftJoin('reforma.inmueble', 'inmueble')
       .leftJoin('reforma.proveedor', 'proveedor')
-      .addSelect(['inmueble.id', 'inmueble.codigo'])
-      .addSelect(['proveedor.id', 'proveedor.nombre'])
+      .addSelect(['inmueble.codigo'])
+      .addSelect(['proveedor.codigo'])
       .getMany();
   }
 
-  async findOne(id: number): Promise<Reforma | null> {
-    return this.reformaRepository.findOne({
-      where: { id },
+  async findOne(id: number): Promise<Reforma> {
+    const reforma = await this.reformaRepository
+      .createQueryBuilder('reforma')
+      .leftJoin('reforma.inmueble', 'inmueble')
+      .leftJoin('reforma.proveedor', 'proveedor')
+      .addSelect(['inmueble.codigo'])
+      .addSelect(['proveedor.codigo'])
+      .where('reforma.id = :id', { id })
+      .getOne();
+    if (!reforma) {
+      throw new NotFoundException(`No se encontró la reforma con ID ${id}`);
+    }
+    return reforma;
+  }
+
+  async update(
+    id: number,
+    dto: UpdateReformaDto,
+    user: { nombre: string },
+  ): Promise<void> {
+    await this.validarFechasActualizadas(id, dto);
+    await this.reformaRepository.update(id, dto);
+    auditLogger.info({
+      action: 'UPDATE_REFORMA',
+      id,
+      user: user.nombre,
+      changes: dto,
     });
   }
 
+  async remove(id: number, user: { nombre: string }): Promise<void> {
+    const reforma = await this.findOne(id);
+    await this.reformaRepository.delete(id);
+
+    const rutaFactura = join(this.dirFacturas, `${id}.pdf`);
+    try {
+      await fs.unlink(rutaFactura);
+    } catch (err) {
+      if (err.code !== 'ENOENT') {
+        errorLogger.error({
+          message: `No se pudo borrar el PDF de la factura ${id}`,
+          error: err,
+        });
+      }
+    }
+
+    auditLogger.info({
+      action: 'DELETE_REFORMA',
+      id,
+      user: user.nombre,
+      data: reforma,
+    });
+  }
+
+  async getIdsConFactura(): Promise<number[]> {
+    const dir = this.dirFacturas;
+    try {
+      const files = await readdir(dir);
+      return files
+        .filter(f => /^\d+\.pdf$/.test(f))
+        .map(f => Number(f.replace('.pdf', '')))
+        .filter(id => !isNaN(id));
+    } catch (error) {
+      errorLogger.error({
+        message: 'Error leyendo facturas PDF',
+        error,
+      });
+      return [];
+    }
+  }
+
   async findByInmueble(inmuebleId: number): Promise<Reforma[]> {
-    return this.reformaRepository
-      .createQueryBuilder('reforma')
-      .leftJoin('reforma.proveedor', 'proveedor')
-      .addSelect(['proveedor.id', 'proveedor.nombre'])
-      .where('reforma.inmueble = :inmuebleId', { inmuebleId })
-      .getMany();
+    return [];
   }
 
   async findByProveedor(proveedorId: number): Promise<Reforma[]> {
-    return this.reformaRepository
-      .createQueryBuilder('reforma')
-      .leftJoin('reforma.inmueble', 'inmueble')
-      .addSelect(['inmueble.id', 'inmueble.codigo'])
-      .where('reforma.proveedor = :proveedorId', { proveedorId })
-      .getMany();
+    return [];
   }
 
-  async remove(id: number): Promise<Reforma | null> {
-    const reforma = await this.findOne(id);
-    if (!reforma) return null;
-    await this.reformaRepository.delete(id);
-    return reforma;
+  private async validarFechasActualizadas(id: number, dto: { fechaInicio?: Date; fechaFin?: Date }) {
+    let fechaInicio: Date | undefined = dto.fechaInicio;
+    let fechaFin: Date | undefined = dto.fechaFin;
+    if (fechaInicio === undefined || fechaFin === undefined) {
+      const reforma = await this.findOne(id);
+      if (fechaInicio === undefined) fechaInicio = reforma.fechaInicio;
+      if (fechaFin === undefined) fechaFin = reforma.fechaFin ?? undefined;
+    }
+    if (fechaInicio && fechaFin) {
+      validarFechas(new Date(fechaInicio), new Date(fechaFin));
+    }
   }
 }

@@ -7,14 +7,19 @@ import {
   Param,
   Body,
   ParseIntPipe,
-  NotFoundException,
+  UseGuards,
 } from '@nestjs/common';
 import { IncidenciaService } from './incidencia.service';
 import { CreateIncidenciaDto } from './dto/create-incidencia.dto';
 import { UpdateIncidenciaDto } from './dto/update-incidencia.dto';
-import { Incidencia } from './incidencia.entity';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import { Roles } from 'src/auth/roles.decorator';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { RequestUser } from 'src/common/decorators/current-user.decorator';
 
+@UseGuards(AuthGuard('jwt'), RolesGuard)
+@Roles('user')
 @ApiTags('Incidencias')
 @Controller('incidencias')
 export class IncidenciaController {
@@ -22,40 +27,41 @@ export class IncidenciaController {
 
   @Post()
   @ApiOperation({ summary: 'Crear una nueva incidencia' })
-  create(@Body() dto: CreateIncidenciaDto): Promise<Incidencia> {
-    return this.incidenciaService.create(dto);
+  create(
+    @Body() dto: CreateIncidenciaDto,
+    @RequestUser() user: { nombre: string },
+  ): Promise<void> {
+    return this.incidenciaService.create(dto, user);
   }
 
   @Get()
   @ApiOperation({ summary: 'Listar todas las incidencias' })
-  findAll(): Promise<Incidencia[]> {
+  findAll(): Promise<any[]> {
     return this.incidenciaService.findAll();
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Obtener una incidencia por ID' })
-  async findOne(@Param('id', ParseIntPipe) id: number): Promise<Incidencia> {
-    const incidencia = await this.incidenciaService.findOne(id);
-    if (!incidencia) throw new NotFoundException();
-    return incidencia;
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.incidenciaService.findOne(id);
   }
 
   @Patch(':id')
   @ApiOperation({ summary: 'Actualizar proveedor avisado en una incidencia' })
-  async update(
+  update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateIncidenciaDto,
-  ): Promise<Incidencia> {
-    const updated = await this.incidenciaService.update(id, dto);
-    if (!updated) throw new NotFoundException();
-    return updated;
+    @RequestUser() user: { nombre: string },
+  ): Promise<void> {
+    return this.incidenciaService.update(id, dto, user);
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Eliminar una incidencia' })
-  async remove(@Param('id', ParseIntPipe) id: number): Promise<Incidencia> {
-    const removed = await this.incidenciaService.remove(id);
-    if (!removed) throw new NotFoundException();
-    return removed;
+  remove(
+    @Param('id', ParseIntPipe) id: number,
+    @RequestUser() user: { nombre: string },
+  ): Promise<void> {
+    return this.incidenciaService.remove(id, user);
   }
 }

@@ -7,18 +7,23 @@ import {
   Param,
   Body,
   ParseIntPipe,
-  NotFoundException,
   UseInterceptors,
   UploadedFile,
+  UseGuards,
 } from '@nestjs/common';
 import { ReformaService } from './reforma.service';
 import { CreateReformaDto } from './dto/create-reforma.dto';
 import { UpdateReformaDto } from './dto/update-reforma.dto';
-import { Reforma } from './reforma.entity';
 import { ApiTags, ApiOperation, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { uploadPdfOptions } from 'src/shared/options/upload-pdf.options';
+import { AuthGuard } from '@nestjs/passport';
+import { Roles } from '../../auth/roles.decorator';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { RequestUser } from 'src/common/decorators/current-user.decorator';
 
+@UseGuards(AuthGuard('jwt'), RolesGuard)
+@Roles('user')
 @ApiTags('Reformas')
 @Controller('reformas')
 export class ReformaController {
@@ -26,42 +31,11 @@ export class ReformaController {
 
   @Post()
   @ApiOperation({ summary: 'Crear una nueva reforma' })
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        documento: {
-          type: 'string',
-          format: 'binary',
-        },
-        inmuebleId: { type: 'number' },
-        proveedorId: { type: 'number' },
-        descripcion: { type: 'string' },
-        observacion: { type: 'string' },
-        fechaInicio: { type: 'string', format: 'date' },
-        fechaFin: { type: 'string', format: 'date' },
-        importe: { type: 'number' },
-        codFactura: { type: 'string' },
-      },
-      required: [
-        'documento',
-        'inmuebleId',
-        'proveedorId',
-        'descripcion',
-        'observacion',
-        'fechaInicio',
-        'importe',
-        'codFactura',
-      ],
-    },
-  })
-  @UseInterceptors(FileInterceptor('documento', uploadPdfOptions))
-  async create(
-    @Body() dto: CreateReformaDto,
-    @UploadedFile() documento: Express.Multer.File,
-  ): Promise<Reforma> {
-    return this.reformaService.create(dto, documento?.filename);
+  create(
+    @Body() createReformaDto: CreateReformaDto,
+    @RequestUser() user: { nombre: string },
+  ): Promise<void> {
+    return this.reformaService.create(createReformaDto, user);
   }
 
   @Patch(':id/factura')
@@ -73,53 +47,55 @@ export class ReformaController {
     schema: {
       type: 'object',
       properties: {
-        documento: {
-          type: 'string',
-          format: 'binary',
-        },
+        documento: { type: 'string', format: 'binary' },
       },
       required: ['documento'],
     },
   })
   @UseInterceptors(FileInterceptor('documento', uploadPdfOptions))
   async updateFactura(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @UploadedFile() documento: Express.Multer.File,
-  ) {
-    const nuevoNombre = documento?.filename;
-    return this.reformaService.updateFactura(+id, nuevoNombre);
+  ): Promise<string> {
+    return this.reformaService.updateFactura(id, documento?.filename);
   }
 
   @Get()
   @ApiOperation({ summary: 'Listar todas las reformas' })
-  findAll(): Promise<Reforma[]> {
+  findAll() {
     return this.reformaService.findAll();
+  }
+
+  @Get('facturas')
+  @ApiOperation({ summary: 'Obtener lista de IDs de reformas con PDF de factura' })
+  getIdsConFacturaPdf() {
+    return this.reformaService.getIdsConFactura();
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Obtener una reforma por ID' })
-  async findOne(@Param('id', ParseIntPipe) id: number): Promise<Reforma> {
-    const reforma = await this.reformaService.findOne(id);
-    if (!reforma) throw new NotFoundException();
-    return reforma;
+  findOne(
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.reformaService.findOne(id);
   }
 
   @Patch(':id')
   @ApiOperation({ summary: 'Actualizar una reforma por ID' })
-  async update(
+  update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateReformaDto,
-  ): Promise<Reforma> {
-    const updated = await this.reformaService.update(id, dto);
-    if (!updated) throw new NotFoundException();
-    return updated;
+    @RequestUser() user: { nombre: string },
+  ): Promise<void> {
+    return this.reformaService.update(id, dto, user);
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Eliminar una reforma por ID' })
-  async remove(@Param('id', ParseIntPipe) id: number): Promise<Reforma> {
-    const removed = await this.reformaService.remove(id);
-    if (!removed) throw new NotFoundException();
-    return removed;
+  remove(
+    @Param('id', ParseIntPipe) id: number,
+    @RequestUser() user: { nombre: string },
+  ): Promise<void> {
+    return this.reformaService.remove(id, user);
   }
 }

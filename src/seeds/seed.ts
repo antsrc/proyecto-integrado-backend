@@ -143,7 +143,7 @@ const seedDatabase = async (dataSource: DataSource) => {
     },
   ]) {
     const exists = await alquilerRepository.findOneBy({
-      codContrato: alquiler.codContrato,
+      // codigo: alquiler.codigo,
     });
     if (!exists) {
       await alquilerRepository.save(alquiler);
@@ -217,7 +217,7 @@ const seedDatabase = async (dataSource: DataSource) => {
       descripcion: incidencia.descripcion,
     });
     if (!exists) {
-      await incidenciaRepository.save(incidencia);
+      // await incidenciaRepository.save(incidencia);
     }
   }
 
@@ -276,7 +276,7 @@ const seedDatabase = async (dataSource: DataSource) => {
     },
   ]) {
     const exists = await reformaRepository.findOneBy({
-      codFactura: reforma.codFactura,
+      // codigo: reforma.codigo,
     });
     if (!exists) {
       await reformaRepository.save(reforma);

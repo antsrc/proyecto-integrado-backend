@@ -8,7 +8,6 @@ import {
 } from 'typeorm';
 import { Alquiler } from '../alquileres/alquiler.entity';
 import { Proveedor } from '../proveedores/proveedor.entity';
-import { Tipo } from './submodules/tipos/tipo.entity';
 import { Reparacion } from './submodules/reparaciones/reparacion.entity';
 
 @Entity('incidencia')
@@ -16,17 +15,19 @@ export class Incidencia {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({ length: 30, unique: true })
+  codigo: string;
+
   @ManyToOne(() => Alquiler, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'alquiler_id' })
   alquiler: Alquiler;
 
-  @ManyToOne(() => Proveedor, { nullable: true })
+  @ManyToOne(() => Proveedor, { nullable: true, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'proveedor_avisado_id' })
   proveedorAvisado: Proveedor | null;
 
-  @ManyToOne(() => Tipo)
-  @JoinColumn({ name: 'tipo_id' })
-  tipo: Tipo;
+  @Column({ length: 30 })
+  tipo: string;
 
   @OneToOne(() => Reparacion, (reparacion) => reparacion.incidencia)
   reparacion: Reparacion | null;

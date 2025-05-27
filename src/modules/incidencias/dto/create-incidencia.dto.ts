@@ -5,30 +5,31 @@ import {
   IsOptional,
   IsString,
   MaxLength,
-  IsDateString,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateIncidenciaDto {
   @ApiProperty()
-  @IsNumber()
+  @IsString({ message: 'El código debe ser una cadena de texto' })
+  @IsNotEmpty({ message: 'El código es obligatorio' })
+  @MaxLength(30, { message: 'El código no puede tener más de 30 caracteres' })
+  codigo: string;
+
+  @ApiProperty()
+  @IsNumber({}, { message: 'El ID de alquiler debe ser un número' })
+  @IsNotEmpty({ message: 'El ID de alquiler es obligatorio' })
+  @Type(() => Number)
   alquilerId: number;
 
   @ApiProperty()
-  @IsOptional()
-  @IsNumber()
-  proveedorAvisadoId?: number;
+  @IsString({ message: 'El tipo de incidencia debe ser una cadena de texto' })
+  @IsNotEmpty({ message: 'El tipo de incidencia es obligatorio' })
+  @MaxLength(30, { message: 'El tipo no puede tener más de 30 caracteres' })
+  tipo: string;
 
   @ApiProperty()
-  @IsNumber()
-  tipoId: number;
-
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(100)
+  @IsString({ message: 'La descripción debe ser una cadena de texto' })
+  @IsNotEmpty({ message: 'La descripción es obligatoria' })
+  @MaxLength(100, { message: 'La descripción no puede tener más de 100 caracteres' })
   descripcion: string;
-
-  @ApiProperty()
-  @IsDateString()
-  fechaRegistro: Date;
 }

@@ -7,19 +7,23 @@ import {
   Param,
   Body,
   ParseIntPipe,
-  NotFoundException,
   UseInterceptors,
   UploadedFile,
-  ConflictException,
+  UseGuards,
 } from '@nestjs/common';
 import { AlquilerService } from './alquiler.service';
 import { CreateAlquilerDto } from './dto/create-alquiler.dto';
 import { UpdateAlquilerDto } from './dto/update-alquiler.dto';
-import { Alquiler } from './alquiler.entity';
 import { ApiTags, ApiOperation, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { uploadPdfOptions } from 'src/shared/options/upload-pdf.options';
+import { AuthGuard } from '@nestjs/passport';
+import { Roles } from '../../auth/roles.decorator';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { RequestUser } from 'src/common/decorators/current-user.decorator';
 
+@UseGuards(AuthGuard('jwt'), RolesGuard)
+@Roles('user')
 @ApiTags('Alquileres')
 @Controller('alquileres')
 export class AlquilerController {
@@ -27,96 +31,77 @@ export class AlquilerController {
 
   @Post()
   @ApiOperation({ summary: 'Crear un nuevo alquiler' })
+  create(
+    @Body() createAlquilerDto: CreateAlquilerDto,
+    @RequestUser() user: { nombre: string },
+  ): Promise<void> {
+    return this.alquilerService.create(createAlquilerDto, user);
+  }
+
+  @Patch(':id/contrato')
+  @ApiOperation({ summary: 'Actualizar el contrato (PDF) de un alquiler' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
+    description: 'Nuevo documento PDF del contrato',
+    type: 'multipart/form-data',
     schema: {
       type: 'object',
       properties: {
-        documento: {
-          type: 'string',
-          format: 'binary',
-        },
-        clienteId: { type: 'number' },
-        inmuebleId: { type: 'number' },
-        fechaAlta: { type: 'string', format: 'date-time' },
-        fechaBaja: { type: 'string', format: 'date-time' },
-        fianza: { type: 'number' },
-        codContrato: { type: 'string' },
+        documento: { type: 'string', format: 'binary' },
       },
-      required: [
-        'documento',
-        'clienteId',
-        'inmuebleId',
-        'fechaAlta',
-        'fianza',
-        'codContrato',
-      ],
+      required: ['documento'],
     },
   })
   @UseInterceptors(FileInterceptor('documento', uploadPdfOptions))
-  async create(
-    @Body() dto: CreateAlquilerDto,
+  async updateContrato(
+    @Param('id', ParseIntPipe) id: number,
     @UploadedFile() documento: Express.Multer.File,
-  ): Promise<Alquiler> {
-    return this.alquilerService.create(dto, documento?.filename);
+  ): Promise<string> {
+    return this.alquilerService.updateContrato(id, documento?.filename);
   }
-
-@Patch(':id/contrato')
-@ApiOperation({ summary: 'Actualizar el contrato (PDF) de un alquiler' })
-@ApiConsumes('multipart/form-data')
-@ApiBody({
-  description: 'Nuevo documento PDF del contrato',
-  type: 'multipart/form-data',
-  schema: {
-    type: 'object',
-    properties: {
-      documento: {
-        type: 'string',
-        format: 'binary',
-      },
-    },
-    required: ['documento'],
-  },
-})
-@UseInterceptors(FileInterceptor('documento', uploadPdfOptions))
-async updateContrato(
-  @Param('id') id: string,
-  @UploadedFile() documento: Express.Multer.File,
-) {
-  const nuevoNombre = documento?.filename;
-  return this.alquilerService.updateContrato(+id, nuevoNombre);
-}
 
   @Get()
   @ApiOperation({ summary: 'Listar todos los alquileres' })
-  findAll(): Promise<Alquiler[]> {
+  findAll() {
     return this.alquilerService.findAll();
+  }
+
+  @Get('contratos')
+  @ApiOperation({ summary: 'Obtener lista de IDs de alquileres con PDF de contrato' })
+  getIdsConContratoPdf() {
+    return this.alquilerService.getIdsConContrato();
+  }
+
+  @Get('summary')
+  @ApiOperation({ summary: 'Obtener todos los alquileres (id y codigo)' })
+  findAllActiveIdCodigo() {
+    return this.alquilerService.findAllActiveIdCodigo();
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Obtener un alquiler por ID' })
-  async findOne(@Param('id', ParseIntPipe) id: number): Promise<Alquiler> {
-    const alquiler = await this.alquilerService.findOne(id);
-    if (!alquiler) throw new NotFoundException();
-    return alquiler;
+  findOne(
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.alquilerService.findOne(id);
   }
 
   @Patch(':id')
   @ApiOperation({ summary: 'Actualizar un alquiler por ID' })
-  async update(
+  update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateAlquilerDto,
-  ): Promise<Alquiler> {
-    const updated = await this.alquilerService.update(id, dto);
-    if (!updated) throw new NotFoundException();
-    return updated;
+    @RequestUser() user: { nombre: string },
+  ): Promise<void> {
+    return this.alquilerService.update(id, dto, user);
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Eliminar un alquiler por ID' })
-  async remove(@Param('id', ParseIntPipe) id: number): Promise<Alquiler> {
-    const removed = await this.alquilerService.remove(id);
-    if (!removed) throw new NotFoundException();
-    return removed;
+  remove(
+    @Param('id', ParseIntPipe) id: number,
+    @RequestUser() user: { nombre: string },
+  ): Promise<void> {
+    return this.alquilerService.remove(id, user);
   }
 }

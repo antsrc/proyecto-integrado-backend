@@ -12,34 +12,48 @@ import { Transform, Type } from 'class-transformer';
 
 export class CreateAlquilerDto {
   @ApiProperty()
-  @IsNumber()
+  @IsString({ message: 'El código debe ser una cadena de texto' })
+  @IsNotEmpty({ message: 'El código es obligatorio' })
+  @MaxLength(30, { message: 'El código no puede tener más de 30 caracteres' })
+  codigo: string;
+
+  @ApiProperty()
+  @IsNumber({}, { message: 'El cliente no es válido' })
+  @IsNotEmpty({ message: 'El cliente es obligatorio' })
   @Type(() => Number)
   clienteId: number;
 
   @ApiProperty()
-  @IsNumber()
+  @IsNumber({}, { message: 'El inmueble no es válido' })
+  @IsNotEmpty({ message: 'El inmueble es obligatorio' })
   @Type(() => Number)
   inmuebleId: number;
 
   @ApiProperty()
-  @IsDateString()
+  @IsDateString({}, { message: 'La fecha de alta debe tener formato de fecha válido (YYYY-MM-DD)' })
+  @IsNotEmpty({ message: 'La fecha de alta es obligatoria' })
+  @Transform(({ value }) => (typeof value === 'string' && value.length > 10 ? value.slice(0, 10) : value))
   fechaAlta: Date;
 
   @ApiProperty()
   @IsOptional()
-  @IsDateString()
-  @Transform(({ value }) => value === '' ? undefined : value)
+  @IsDateString({}, { message: 'La fecha de baja debe tener formato de fecha válido (YYYY-MM-DD)' })
+  @Transform(({ value }) => {
+    if (value === '' || value === undefined || value === null) return null;
+    if (typeof value === 'string' && value.length > 10) return value.slice(0, 10);
+    return value;
+  })
   fechaBaja?: Date;
 
   @ApiProperty()
-  @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0)
-  @Type(() => Number)
+  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'La fianza debe ser un número con hasta 2 decimales' })
+  @Min(0, { message: 'La fianza no puede ser negativa' })
+  @IsNotEmpty({ message: 'La fianza es obligatoria' })
+  @Transform(({ value }) => {
+    const n = Number(value);
+    return value === '' || value === undefined || value === null || isNaN(n)
+      ? null
+      : n;
+  })
   fianza: number;
-
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(50)
-  codContrato: string;
 }

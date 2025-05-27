@@ -3,8 +3,11 @@
 /node_modules
 /build
 /uploads/fotos/*
+!/uploads/fotos/.gitkeep
 /uploads/contratos/*
 !/uploads/contratos/.gitkeep
+/logs/*
+!/logs/.gitkeep
 
 # Logs
 logs

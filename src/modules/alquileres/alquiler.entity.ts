@@ -13,6 +13,9 @@ export class Alquiler {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({ length: 30, unique: true })
+  codigo: string;
+
   @ManyToOne(() => Cliente, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'cliente_id' })
   cliente: Cliente;
@@ -27,9 +30,6 @@ export class Alquiler {
   @Column({ type: 'date', name: 'fecha_baja', nullable: true })
   fechaBaja: Date | null;
 
-  @Column('decimal', { precision: 8, scale: 2 })
-  fianza: number;
-
-  @Column({ length: 50, unique: true, name: 'cod_contrato' })
-  codContrato: string;
+  @Column('decimal', { precision: 8, scale: 2, nullable: true })
+  fianza: number | null;
 }

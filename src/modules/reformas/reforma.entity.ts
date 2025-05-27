@@ -13,6 +13,9 @@ export class Reforma {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({ length: 30, unique: true, name: 'codigo' })
+  codigo: string;
+
   @ManyToOne(() => Inmueble, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'inmueble_id' })
   inmueble: Inmueble;
@@ -21,11 +24,11 @@ export class Reforma {
   @JoinColumn({ name: 'proveedor_id' })
   proveedor: Proveedor;
 
-  @Column({ length: 100 })
-  descripcion: string;
+  @Column({ length: 30 })
+  tipo: string;
 
-  @Column('text')
-  observacion: string;
+  @Column('text', { nullable: true })
+  descripcion: string | null;
 
   @Column({ type: 'date', name: 'fecha_inicio' })
   fechaInicio: Date;
@@ -33,9 +36,6 @@ export class Reforma {
   @Column({ type: 'date', name: 'fecha_fin', nullable: true })
   fechaFin: Date | null;
 
-  @Column('decimal', { precision: 8, scale: 2 })
-  importe: number;
-
-  @Column({ length: 50, unique: true, name: 'cod_factura' })
-  codFactura: string;
+  @Column('decimal', { precision: 8, scale: 2, nullable: true })
+  importe: number | null;
 }

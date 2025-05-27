@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Incidencia } from './incidencia.entity';
 import { CreateIncidenciaDto } from './dto/create-incidencia.dto';
 import { UpdateIncidenciaDto } from './dto/update-incidencia.dto';
+import { auditLogger } from 'src/common/loggers/audit.logger';
 
 @Injectable()
 export class IncidenciaService {
@@ -12,94 +13,82 @@ export class IncidenciaService {
     private readonly incidenciaRepository: Repository<Incidencia>,
   ) {}
 
-  async create(dto: CreateIncidenciaDto): Promise<Incidencia> {
+  async create(dto: CreateIncidenciaDto, user: { nombre: string }): Promise<void> {
     const incidencia = this.incidenciaRepository.create({
-      descripcion: dto.descripcion,
-      fechaRegistro: new Date(),
+      ...dto,
       alquiler: { id: dto.alquilerId } as any,
-      tipo: { id: dto.tipoId } as any,
-      proveedorAvisado: dto.proveedorAvisadoId
-        ? ({ id: dto.proveedorAvisadoId } as any)
-        : null,
+      fechaRegistro: new Date(),
     });
-    return this.incidenciaRepository.save(incidencia);
+    const saved = await this.incidenciaRepository.save(incidencia);
+    auditLogger.info({
+      action: 'CREATE_INCIDENCIA',
+      id: saved.id,
+      user: user.nombre,
+      data: dto,
+    });
   }
 
-  async findAll(): Promise<Incidencia[]> {
-    return this.incidenciaRepository
+  async findAll(): Promise<any[]> {
+    const incidencias = await this.incidenciaRepository
       .createQueryBuilder('incidencia')
-      .leftJoin('incidencia.proveedorAvisado', 'proveedorAvisado')
-      .leftJoinAndSelect('incidencia.reparacion', 'reparacion')
-      .leftJoin('reparacion.proveedor', 'proveedorReparacion')
+      .leftJoin('incidencia.reparacion', 'reparacion')
       .leftJoin('incidencia.alquiler', 'alquiler')
       .leftJoin('alquiler.cliente', 'cliente')
       .leftJoin('alquiler.inmueble', 'inmueble')
-      .addSelect(['proveedorAvisado.id', 'proveedorAvisado.nombre'])
-      .addSelect(['proveedorReparacion.id', 'proveedorReparacion.nombre'])
-      .addSelect(['alquiler.id', 'alquiler.codContrato'])
-      .addSelect(['cliente.id', 'cliente.nombreCompleto'])
-      .addSelect(['inmueble.id', 'inmueble.codigo'])
+      .addSelect(['reparacion.id'])
+      .addSelect(['alquiler.codigo'])
+      .addSelect(['cliente.codigo'])
+      .addSelect(['inmueble.codigo'])
       .getMany();
+    return incidencias.map(({ proveedorAvisado, reparacion, ...rest }) => ({
+      ...rest,
+      reparada: !!reparacion,
+    }));
   }
 
-  async findOne(id: number): Promise<Incidencia | null> {
-    return this.incidenciaRepository.findOne({ where: { id } });
+  async findOne(id: number): Promise<Incidencia> {
+    const incidencia = await this.incidenciaRepository
+      .createQueryBuilder('incidencia')
+      .leftJoin('incidencia.alquiler', 'alquiler')
+      .addSelect(['alquiler.codigo'])
+      .where('incidencia.id = :id', { id })
+      .getOne();
+    if (!incidencia) {
+      throw new NotFoundException(`No se encontró la incidencia con ID ${id}`);
+    }
+    return incidencia;
   }
 
   async findByCliente(clienteId: number): Promise<Incidencia[]> {
-    return this.incidenciaRepository
-      .createQueryBuilder('incidencia')
-      .leftJoin('incidencia.proveedorAvisado', 'proveedorAvisado')
-      .leftJoinAndSelect('incidencia.reparacion', 'reparacion')
-      .leftJoin('reparacion.proveedor', 'proveedorReparacion')
-      .leftJoin('incidencia.alquiler', 'alquiler')
-      .leftJoin('alquiler.cliente', 'cliente')
-      .leftJoin('alquiler.inmueble', 'inmueble')
-      .where('cliente.id = :clienteId', { clienteId })
-      .addSelect(['proveedorAvisado.id', 'proveedorAvisado.nombre'])
-      .addSelect(['proveedorReparacion.id', 'proveedorReparacion.nombre'])
-      .addSelect(['alquiler.id', 'alquiler.codContrato'])
-      .addSelect(['cliente.id', 'cliente.nombreCompleto'])
-      .addSelect(['inmueble.id', 'inmueble.codigo'])
-      .getMany();
+    return [];
   }
 
   async findByInmueble(inmuebleId: number): Promise<Incidencia[]> {
-    return this.incidenciaRepository
-      .createQueryBuilder('incidencia')
-      .leftJoin('incidencia.proveedorAvisado', 'proveedorAvisado')
-      .leftJoinAndSelect('incidencia.reparacion', 'reparacion')
-      .leftJoin('reparacion.proveedor', 'proveedorReparacion')
-      .leftJoin('incidencia.alquiler', 'alquiler')
-      .leftJoin('alquiler.cliente', 'cliente')
-      .leftJoin('alquiler.inmueble', 'inmueble')
-      .where('inmueble.id = :inmuebleId', { inmuebleId })
-      .addSelect(['proveedorAvisado.id', 'proveedorAvisado.nombre'])
-      .addSelect(['proveedorReparacion.id', 'proveedorReparacion.nombre'])
-      .addSelect(['alquiler.id', 'alquiler.codContrato'])
-      .addSelect(['cliente.id', 'cliente.nombreCompleto'])
-      .addSelect(['inmueble.id', 'inmueble.codigo'])
-      .getMany();
+    return [];
   }
 
   async update(
     id: number,
     dto: UpdateIncidenciaDto,
-  ): Promise<Incidencia | null> {
-    const incidencia = await this.findOne(id);
-    if (!incidencia) return null;
+    user: { nombre: string },
+  ): Promise<void> {
     await this.incidenciaRepository.update(id, {
-      proveedorAvisado: dto.proveedorAvisadoId
-        ? ({ id: dto.proveedorAvisadoId } as any)
-        : null,
+      proveedorAvisado: dto.proveedorAvisadoId != null ? { id: dto.proveedorAvisadoId } as any : null,
     });
-    return this.findOne(id);
+    auditLogger.info({
+      action: 'UPDATE_INCIDENCIA',
+      id,
+      user: user.nombre,
+      changes: dto,
+    });
   }
 
-  async remove(id: number): Promise<Incidencia | null> {
-    const incidencia = await this.findOne(id);
-    if (!incidencia) return null;
+  async remove(id: number, user: { nombre: string }): Promise<void> {
     await this.incidenciaRepository.delete(id);
-    return incidencia;
+    auditLogger.info({
+      action: 'DELETE_INCIDENCIA',
+      id,
+      user: user.nombre,
+    });
   }
 }

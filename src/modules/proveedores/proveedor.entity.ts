@@ -6,10 +6,16 @@ export class Proveedor {
   id: number;
 
   @Column({ length: 30, unique: true })
+  codigo: string;
+
+  @Column({ length: 30, unique: true })
   cif: string;
 
   @Column({ length: 50 })
   nombre: string;
+
+  @Column({ length: 30 })
+  tipo: string;
 
   @Column({ length: 100 })
   direccion: string;
