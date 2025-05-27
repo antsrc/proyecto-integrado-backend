@@ -3,12 +3,14 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { Response, Request } from 'express';
+import { Public } from 'src/common/decorators/public.decorator';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Public()
   @Post('login')
   @ApiOperation({ summary: 'Iniciar sesión y obtener cookie con token' })
   async login(
@@ -27,6 +29,7 @@ export class AuthController {
     res.status(200).send();
   }
 
+  @Public()
   @Post('logout')
   @ApiOperation({ summary: 'Cerrar sesión y eliminar cookie del token' })
   logout(@Res() res: Response) {
@@ -39,6 +42,7 @@ export class AuthController {
     res.status(200).send();
   }
 
+  @Public()
   @Get('user')
   @ApiOperation({ summary: 'Obtener el usuario autenticado desde la cookie' })
   getUser(@Req() req: Request) {

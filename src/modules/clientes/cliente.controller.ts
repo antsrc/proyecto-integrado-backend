@@ -10,7 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { Roles } from '../../auth/roles.decorator';
+import { Roles } from '../../common/decorators/roles.decorator';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { ClienteService } from './cliente.service';
 import { CreateClienteDto } from './dto/create-cliente.dto';
