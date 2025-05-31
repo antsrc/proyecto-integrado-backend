@@ -40,6 +40,12 @@ export class IncidenciaController {
     return this.incidenciaService.findAll();
   }
 
+  @Get('summary')
+  @ApiOperation({ summary: 'Obtener todas las incidencias sin reparación (id y codigo)' })
+  findAllActiveIdCodigo() {
+    return this.incidenciaService.findAllActiveIdCodigo();
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Obtener una incidencia por ID' })
   findOne(@Param('id', ParseIntPipe) id: number) {

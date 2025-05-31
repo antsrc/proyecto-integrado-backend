@@ -1,11 +1,12 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Mensualidad } from './mensualidad.entity';
 import { MensualidadService } from './mensualidad.service';
 import { MensualidadController } from './mensualidad.controller';
+import { Mensualidad } from './mensualidad.entity';
+import { AlquilerModule } from '../alquileres/alquiler.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Mensualidad])],
+  imports: [TypeOrmModule.forFeature([Mensualidad]), forwardRef(() => AlquilerModule)],
   controllers: [MensualidadController],
   providers: [MensualidadService],
   exports: [MensualidadService],

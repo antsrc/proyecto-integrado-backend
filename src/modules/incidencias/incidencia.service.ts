@@ -91,4 +91,13 @@ export class IncidenciaService {
       user: user.nombre,
     });
   }
+
+  async findAllActiveIdCodigo(): Promise<{ id: number; codigo: string }[]> {
+    const incidencias = await this.incidenciaRepository
+      .createQueryBuilder('incidencia')
+      .select(['incidencia.id', 'incidencia.codigo'])
+      .where('incidencia.id NOT IN (SELECT reparacion.incidenciaId FROM reparacion)')
+      .getMany();
+    return incidencias;
+  }
 }

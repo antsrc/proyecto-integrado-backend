@@ -22,7 +22,7 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { RequestUser } from 'src/common/decorators/current-user.decorator';
 
-@UseGuards(AuthGuard('jwt'), RolesGuard)
+@UseGuards(RolesGuard)
 @Roles('user')
 @ApiTags('Alquileres')
 @Controller('alquileres')

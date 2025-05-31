@@ -4,7 +4,7 @@ import { Incidencia } from './incidencia.entity';
 import { IncidenciaService } from './incidencia.service';
 import { IncidenciaController } from './incidencia.controller';
 import { TipoModule } from './submodules/tipos/tipo.module';
-import { ReparacionModule } from './submodules/reparaciones/reparacion.module';
+import { ReparacionModule } from '../reparaciones/reparacion.module';
 
 @Module({
   imports: [

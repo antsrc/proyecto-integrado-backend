@@ -97,21 +97,23 @@ export class AlquilerService {
   }
 
   async findByInmueble(inmuebleId: number): Promise<Alquiler[]> {
-    return this.alquilerRepository
-      .createQueryBuilder('alquiler')
-      .leftJoin('alquiler.cliente', 'cliente')
-      .addSelect(['cliente.id', 'cliente.codigo'])
-      .where('alquiler.inmueble = :inmuebleId', { inmuebleId })
-      .getMany();
+    // return this.alquilerRepository
+    //   .createQueryBuilder('alquiler')
+    //   .leftJoin('alquiler.cliente', 'cliente')
+    //   .addSelect(['cliente.id', 'cliente.codigo'])
+    //   .where('alquiler.inmueble = :inmuebleId', { inmuebleId })
+    //   .getMany();
+    return []
   }
 
   async findByCliente(clienteId: number): Promise<Alquiler[]> {
-    return this.alquilerRepository
-      .createQueryBuilder('alquiler')
-      .leftJoin('alquiler.inmueble', 'inmueble')
-      .addSelect(['inmueble.id', 'inmueble.codigo'])
-      .where('alquiler.cliente = :clienteId', { clienteId })
-      .getMany();
+    // return this.alquilerRepository
+    //   .createQueryBuilder('alquiler')
+    //   .leftJoin('alquiler.inmueble', 'inmueble')
+    //   .addSelect(['inmueble.id', 'inmueble.codigo'])
+    //   .where('alquiler.cliente = :clienteId', { clienteId })
+    //   .getMany();
+    return []
   }
 
   async update(

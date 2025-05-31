@@ -15,7 +15,7 @@ import { Observacion as ObservacionCliente } from '../modules/clientes/submodule
 import { Observacion as ObservacionInmueble } from '../modules/inmuebles/submodules/observaciones/observacion.entity';
 import { Observacion as ObservacionProveedor } from '../modules/proveedores/submodules/observaciones/observacion.entity';
 import { Tipo as TipoIncidencia } from '../modules/incidencias/submodules/tipos/tipo.entity';
-import { Reparacion } from 'src/modules/incidencias/submodules/reparaciones/reparacion.entity';
+import { Reparacion } from 'src/modules/reparaciones/reparacion.entity';
 
 const seedDatabase = async (dataSource: DataSource) => {
 
@@ -245,7 +245,7 @@ const seedDatabase = async (dataSource: DataSource) => {
     },
   ]) {
     const exists = await mensualidadRepository.findOneBy({
-      codFactura: mensualidad.codFactura,
+      // codFactura: mensualidad.codFactura,
     });
     if (!exists) {
       await mensualidadRepository.save(mensualidad);
@@ -463,7 +463,7 @@ const seedDatabase = async (dataSource: DataSource) => {
     },
   ]) {
     const exists = await reparacionRepository.findOneBy({
-      codFactura: reparacion.codFactura,
+      // codFactura: reparacion.codFactura,
     });
     if (!exists) {
       await reparacionRepository.save(reparacion);

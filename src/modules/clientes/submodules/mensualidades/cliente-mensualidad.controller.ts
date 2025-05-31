@@ -8,11 +8,11 @@ import { ApiTags, ApiOperation } from '@nestjs/swagger';
 export class ClienteMensualidadController {
   constructor(private readonly mensualidadService: MensualidadService) {}
 
-  @Get()
-  @ApiOperation({ summary: 'Listar mensualidades de un cliente' })
-  findByCliente(
-    @Param('clienteId', ParseIntPipe) clienteId: number,
-  ): Promise<Mensualidad[]> {
-    return this.mensualidadService.findByCliente(clienteId);
-  }
+  // @Get()
+  // @ApiOperation({ summary: 'Listar mensualidades de un cliente' })
+  // findByCliente(
+  //   @Param('clienteId', ParseIntPipe) clienteId: number,
+  // ): Promise<Mensualidad[]> {
+  //   return this.mensualidadService.findByCliente(clienteId);
+  // }
 }

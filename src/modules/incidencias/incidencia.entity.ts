@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 import { Alquiler } from '../alquileres/alquiler.entity';
 import { Proveedor } from '../proveedores/proveedor.entity';
-import { Reparacion } from './submodules/reparaciones/reparacion.entity';
+import { Reparacion } from '../reparaciones/reparacion.entity';
 
 @Entity('incidencia')
 export class Incidencia {

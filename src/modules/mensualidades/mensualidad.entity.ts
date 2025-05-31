@@ -16,17 +16,14 @@ export class Mensualidad {
   @JoinColumn({ name: 'alquiler_id' })
   alquiler: Alquiler;
 
-  @Column({ type: 'tinyint' })
-  mes: number;
+  @Column({ type: 'date', name: 'fecha_inicio' })
+  fechaInicio: Date;
 
-  @Column({ type: 'year' })
-  ano: number;
+  @Column({ type: 'date', name: 'fecha_fin' })
+  fechaFin: Date;
 
   @Column('decimal', { precision: 8, scale: 2 })
   importe: number;
-
-  @Column({ type: 'varchar', length: 30, nullable: true, name: 'forma_pago' })
-  formaPago: string | null;
 
   @Column({ type: 'date', name: 'fecha_emision' })
   fechaEmision: Date;
@@ -34,6 +31,6 @@ export class Mensualidad {
   @Column({ type: 'date', name: 'fecha_pago', nullable: true })
   fechaPago: Date | null;
 
-  @Column({ length: 50, unique: true, name: 'cod_factura' })
-  codFactura: string;
+  @Column({ type: 'varchar', length: 30, nullable: true, name: 'forma_pago' })
+  formaPago: string | null;
 }
