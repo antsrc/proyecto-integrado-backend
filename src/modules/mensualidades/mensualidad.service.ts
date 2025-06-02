@@ -10,9 +10,8 @@ import { promises as fs } from 'fs';
 import { auditLogger } from 'src/common/loggers/audit.logger';
 import { errorLogger } from 'src/common/loggers/error.logger';
 import { readdir } from 'fs/promises';
-import { AlquilerService } from '../alquileres/alquiler.service';
 import { Cliente } from '../clientes/cliente.entity';
-import { ClienteService } from '../clientes/cliente.service';
+import { Alquiler } from '../alquileres/alquiler.entity';
 
 @Injectable()
 export class MensualidadService {
@@ -22,7 +21,8 @@ export class MensualidadService {
   constructor(
     @InjectRepository(Mensualidad)
     private readonly mensualidadRepository: Repository<Mensualidad>,
-    private readonly alquilerService: AlquilerService,
+    @InjectRepository(Alquiler)
+    private readonly alquilerRepository: Repository<Alquiler>,
     @InjectRepository(Cliente)
     private readonly clienteRepository: Repository<Cliente>,
   ) {}
@@ -32,18 +32,22 @@ export class MensualidadService {
     user: { nombre: string },
   ): Promise<void> {
     if (dto.fechaFin && dto.fechaInicio) {
-      await this.validarFechasEnAlquiler(dto.alquilerId, {
+      await this.validarFechasMensualidad(dto.alquilerId, {
         fechaInicio: new Date(dto.fechaInicio),
         fechaFin: new Date(dto.fechaFin),
       });
     }
+    this.validarFechaPagoVsEmision({ fechaEmision: dto.fechaEmision, fechaPago: dto.fechaPago });
     const mensualidad = this.mensualidadRepository.create({
       ...dto,
       alquiler: { id: dto.alquilerId } as any,
     });
     const saved = await this.mensualidadRepository.save(mensualidad);
     if (!dto.fechaPago) {
-      const alquiler = await this.alquilerService.findOne(dto.alquilerId);
+      const alquiler = await this.alquilerRepository.findOne({
+        where: { id: dto.alquilerId },
+        relations: ['cliente'],
+      });
       const clienteId = alquiler?.cliente?.id;
       if (clienteId) {
         await this.actualizarDeudaCliente(clienteId, dto.importe);
@@ -103,6 +107,14 @@ export class MensualidadService {
     dto: UpdateMensualidadDto,
     user: { nombre: string },
   ): Promise<void> {
+    const mensualidadOriginal = await this.mensualidadRepository.findOne({
+      where: { id },
+      relations: ['alquiler', 'alquiler.cliente'],
+    });
+    if (!mensualidadOriginal) {
+      throw new NotFoundException('Mensualidad no encontrada');
+    }
+    this.validarFechaPagoVsEmision({ fechaEmision: mensualidadOriginal.fechaEmision, fechaPago: dto.fechaPago });
     await this.mensualidadRepository.update(id, dto);
     auditLogger.info({
       action: 'UPDATE_MENSUALIDAD',
@@ -110,18 +122,35 @@ export class MensualidadService {
       user: user.nombre,
       changes: dto,
     });
-    if (dto.fechaPago) {
-      const mensualidad = await this.findOne(id);
-      const clienteId = mensualidad.alquiler.cliente?.id;
+    if (!mensualidadOriginal.fechaPago && dto.fechaPago) {
+      const clienteId = mensualidadOriginal.alquiler?.cliente?.id;
       if (clienteId) {
-        await this.actualizarDeudaCliente(clienteId, -mensualidad.importe);
+        await this.actualizarDeudaCliente(clienteId, -mensualidadOriginal.importe);
+      }
+    }
+    if (mensualidadOriginal.fechaPago && dto.fechaPago === null) {
+      const clienteId = mensualidadOriginal.alquiler?.cliente?.id;
+      if (clienteId) {
+        await this.actualizarDeudaCliente(clienteId, mensualidadOriginal.importe);
       }
     }
   }
 
   async remove(id: number, user: { nombre: string }): Promise<void> {
-    const mensualidad = await this.findOne(id);
+    const mensualidad = await this.mensualidadRepository.findOne({
+      where: { id },
+      relations: ['alquiler', 'alquiler.cliente'],
+    });
+    if (!mensualidad) {
+      throw new NotFoundException('Mensualidad no encontrada');
+    }
     await this.mensualidadRepository.delete(id);
+    if (!mensualidad.fechaPago && mensualidad.alquiler?.cliente) {
+      const clienteId = mensualidad.alquiler.cliente.id;
+      if (clienteId) {
+        await this.actualizarDeudaCliente(clienteId, -mensualidad.importe);
+      }
+    }
 
     const rutaFactura = join(this.dirFacturas, `${id}.pdf`);
     try {
@@ -159,10 +188,10 @@ export class MensualidadService {
     }
   }
 
-  private async validarFechasEnAlquiler(alquilerId: number, dto: { fechaInicio?: Date; fechaFin?: Date }) {
+  private async validarFechasMensualidad(alquilerId: number, dto: { fechaInicio?: Date; fechaFin?: Date }) {
     if (dto.fechaFin && dto.fechaInicio) {
       validarFechas(new Date(dto.fechaInicio), new Date(dto.fechaFin));
-      const alquiler = await this.alquilerService.findOne(alquilerId);
+      const alquiler = await this.alquilerRepository.findOne({ where: { id: alquilerId } });
       if (!alquiler) {
         throw new NotFoundException('No se encontró el alquiler asociado');
       }
@@ -173,6 +202,24 @@ export class MensualidadService {
       const fueraDeRango = (fecha: Date) => fecha < alta || (baja && fecha > baja);
       if (fueraDeRango(inicio) || fueraDeRango(fin)) {
         throw new BadRequestException('Las fechas de la mensualidad no están dentro del alquiler');
+      }
+      const solapadas = await this.mensualidadRepository.createQueryBuilder('m')
+        .where('m.alquiler = :alquilerId', { alquilerId })
+        .andWhere('((:inicio BETWEEN m.fechaInicio AND m.fechaFin) OR (:fin BETWEEN m.fechaInicio AND m.fechaFin) OR (m.fechaInicio BETWEEN :inicio AND :fin))')
+        .setParameters({ inicio, fin })
+        .getCount();
+      if (solapadas > 0) {
+        throw new BadRequestException('Las fechas se solapan con otra mensualidad existente para este alquiler');
+      }
+    }
+  }
+
+  private validarFechaPagoVsEmision(dto: { fechaEmision?: Date; fechaPago?: Date }) {
+    if (dto.fechaPago && dto.fechaEmision) {
+      const pago = new Date(dto.fechaPago);
+      const emision = new Date(dto.fechaEmision);
+      if (pago < emision) {
+        throw new BadRequestException('La fecha de pago no puede ser anterior a la fecha de emisión');
       }
     }
   }

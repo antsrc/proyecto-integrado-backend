@@ -8,7 +8,7 @@ export class UpdateIncidenciaDto extends PartialType(
 ) {
   @ApiProperty()
   @IsOptional()
-  @IsNumber({}, { message: 'El ID del proveedor avisado debe ser un número' })
+  @IsNumber({}, { message: 'El proveedor avisado no es válido' })
   @Transform(({ value }) => {
     const n = Number(value);
     return value === '' || value === undefined || value === null || isNaN(n)

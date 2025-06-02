@@ -14,11 +14,11 @@ export class Reparacion {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToOne(() => Incidencia, { onDelete: 'CASCADE' })
+  @OneToOne(() => Incidencia)
   @JoinColumn({ name: 'incidencia_id' })
   incidencia: Incidencia;
 
-  @ManyToOne(() => Proveedor, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Proveedor)
   @JoinColumn({ name: 'proveedor_id' })
   proveedor: Proveedor;
 

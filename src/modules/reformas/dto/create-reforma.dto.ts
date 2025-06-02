@@ -6,8 +6,10 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  Max,
   MaxLength,
   Min,
+  Matches,
 } from 'class-validator';
 
 export class CreateReformaDto {
@@ -17,6 +19,7 @@ export class CreateReformaDto {
   @MaxLength(30, {
     message: 'El código no puede tener más de 30 caracteres',
   })
+  @Matches(/^[A-Za-z0-9-]+$/, { message: 'El código solo puede contener letras, números y guiones' })
   codigo: string;
 
   @ApiProperty()
@@ -37,6 +40,7 @@ export class CreateReformaDto {
   @MaxLength(30, {
     message: 'El tipo no puede tener más de 30 caracteres',
   })
+  @Matches(/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\-_,\(\)\+]*$/, { message: 'El tipo contiene caracteres no válidos' })
   tipo: string;
 
   @ApiProperty()
@@ -83,6 +87,7 @@ export class CreateReformaDto {
     { maxDecimalPlaces: 2 },
     { message: 'El importe debe ser un número con hasta 2 decimales' },
   )
-  @Min(0, { message: 'El importe no puede ser negativo' })
+  @Min(1, { message: 'El importe no puede ser menor de 1' })
+  @Max(999999.99, { message: 'El importe no puede tener más de 6 dígitos enteros' })
   importe?: number;
 }

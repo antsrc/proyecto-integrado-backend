@@ -7,7 +7,7 @@ export class Observacion implements IObservacion {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Proveedor, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Proveedor)
   @JoinColumn({ name: 'proveedor_id' })
   proveedor: Proveedor;
 

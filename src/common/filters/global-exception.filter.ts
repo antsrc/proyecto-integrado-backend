@@ -59,6 +59,13 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         isExpected = true;
       }
 
+      else if (driverError.code === 'ER_ROW_IS_REFERENCED_2') {
+        status = HttpStatus.CONFLICT;
+        message = 'No se puede eliminar porque hay registros relacionados';
+        error = 'Conflict';
+        isExpected = true;
+      }
+
       else {
         status = HttpStatus.INTERNAL_SERVER_ERROR;
         message = 'Error en la base de datos';

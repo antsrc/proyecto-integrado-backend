@@ -72,9 +72,12 @@ export class IncidenciaService {
     dto: UpdateIncidenciaDto,
     user: { nombre: string },
   ): Promise<void> {
-    await this.incidenciaRepository.update(id, {
-      proveedorAvisado: dto.proveedorAvisadoId != null ? { id: dto.proveedorAvisadoId } as any : null,
-    });
+    const updateData: any = { ...dto };
+    if ('proveedorAvisadoId' in updateData) {
+      updateData.proveedorAvisado = updateData.proveedorAvisadoId != null ? { id: updateData.proveedorAvisadoId } as any : null;
+      delete updateData.proveedorAvisadoId;
+    }
+    await this.incidenciaRepository.update(id, updateData);
     auditLogger.info({
       action: 'UPDATE_INCIDENCIA',
       id,
@@ -96,7 +99,7 @@ export class IncidenciaService {
     const incidencias = await this.incidenciaRepository
       .createQueryBuilder('incidencia')
       .select(['incidencia.id', 'incidencia.codigo'])
-      .where('incidencia.id NOT IN (SELECT reparacion.incidenciaId FROM reparacion)')
+      .where('incidencia.id NOT IN (SELECT reparacion.incidencia_id FROM reparacion)')
       .getMany();
     return incidencias;
   }

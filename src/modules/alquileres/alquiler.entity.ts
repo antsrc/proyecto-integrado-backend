@@ -16,11 +16,11 @@ export class Alquiler {
   @Column({ length: 30, unique: true })
   codigo: string;
 
-  @ManyToOne(() => Cliente, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Cliente)
   @JoinColumn({ name: 'cliente_id' })
   cliente: Cliente;
 
-  @ManyToOne(() => Inmueble, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Inmueble)
   @JoinColumn({ name: 'inmueble_id' })
   inmueble: Inmueble;
 
@@ -30,6 +30,6 @@ export class Alquiler {
   @Column({ type: 'date', name: 'fecha_baja', nullable: true })
   fechaBaja: Date | null;
 
-  @Column('decimal', { precision: 8, scale: 2, nullable: true })
+  @Column('decimal', { precision: 6, scale: 2, nullable: true })
   fianza: number | null;
 }

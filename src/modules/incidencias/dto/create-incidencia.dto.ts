@@ -4,6 +4,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  Matches,
   MaxLength,
 } from 'class-validator';
 import { Type } from 'class-transformer';
@@ -13,6 +14,7 @@ export class CreateIncidenciaDto {
   @IsString({ message: 'El código debe ser una cadena de texto' })
   @IsNotEmpty({ message: 'El código es obligatorio' })
   @MaxLength(30, { message: 'El código no puede tener más de 30 caracteres' })
+  @Matches(/^[A-Za-z0-9-]+$/, { message: 'El código solo puede contener letras, números y guiones' })
   codigo: string;
 
   @ApiProperty()
@@ -25,11 +27,11 @@ export class CreateIncidenciaDto {
   @IsString({ message: 'El tipo de incidencia debe ser una cadena de texto' })
   @IsNotEmpty({ message: 'El tipo de incidencia es obligatorio' })
   @MaxLength(30, { message: 'El tipo no puede tener más de 30 caracteres' })
+  @Matches(/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\-_,\(\)\+]*$/, { message: 'El tipo contiene caracteres no válidos' })
   tipo: string;
 
   @ApiProperty()
   @IsString({ message: 'La descripción debe ser una cadena de texto' })
   @IsNotEmpty({ message: 'La descripción es obligatoria' })
-  @MaxLength(100, { message: 'La descripción no puede tener más de 100 caracteres' })
   descripcion: string;
 }

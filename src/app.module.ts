@@ -11,6 +11,7 @@ import { MensualidadModule } from './modules/mensualidades/mensualidad.module';
 import { UsuarioModule } from './modules/usuarios/usuario.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { NotificacionModule } from './modules/notificaciones/notificacion.module';
 
 @Module({
   imports: [
@@ -41,7 +42,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     IncidenciaModule,
     MensualidadModule,
     UsuarioModule,
-    AuthModule
+    AuthModule,
+    NotificacionModule
   ],
   controllers: [AppController],
 })

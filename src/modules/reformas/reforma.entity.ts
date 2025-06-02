@@ -16,11 +16,11 @@ export class Reforma {
   @Column({ length: 30, unique: true, name: 'codigo' })
   codigo: string;
 
-  @ManyToOne(() => Inmueble, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Inmueble)
   @JoinColumn({ name: 'inmueble_id' })
   inmueble: Inmueble;
 
-  @ManyToOne(() => Proveedor, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Proveedor)
   @JoinColumn({ name: 'proveedor_id' })
   proveedor: Proveedor;
 

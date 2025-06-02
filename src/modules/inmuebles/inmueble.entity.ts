@@ -8,7 +8,7 @@ export class Inmueble {
   @Column({ length: 30, unique: true })
   codigo: string;
 
-  @Column({ length: 100 })
+  @Column({ length: 75 })
   direccion: string;
 
   @Column({ name: 'cod_postal', length: 5 })
@@ -25,11 +25,11 @@ export class Inmueble {
 
   @Column('decimal', {
     name: 'metros_cuadrados',
-    precision: 8,
+    precision: 6,
     scale: 2,
   })
   metrosCuadrados: number;
 
-  @Column({ name: 'ref_catastral', length: 30, unique: true })
+  @Column({ name: 'ref_catastral', length: 20, unique: true })
   refCatastral: string;
 }

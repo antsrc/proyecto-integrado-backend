@@ -6,7 +6,7 @@ export class Ibi {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Inmueble, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Inmueble)
   @JoinColumn({ name: 'inmueble_id' })
   inmueble: Inmueble;
   

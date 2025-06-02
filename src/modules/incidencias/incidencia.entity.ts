@@ -18,11 +18,11 @@ export class Incidencia {
   @Column({ length: 30, unique: true })
   codigo: string;
 
-  @ManyToOne(() => Alquiler, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Alquiler)
   @JoinColumn({ name: 'alquiler_id' })
   alquiler: Alquiler;
 
-  @ManyToOne(() => Proveedor, { nullable: true, onDelete: 'CASCADE' })
+  @ManyToOne(() => Proveedor, { nullable: true })
   @JoinColumn({ name: 'proveedor_avisado_id' })
   proveedorAvisado: Proveedor | null;
 
@@ -32,7 +32,7 @@ export class Incidencia {
   @OneToOne(() => Reparacion, (reparacion) => reparacion.incidencia)
   reparacion: Reparacion | null;
 
-  @Column({ length: 100 })
+  @Column({ type: 'text' })
   descripcion: string;
 
   @Column({ type: 'date', name: 'fecha_registro' })

@@ -20,7 +20,7 @@ import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { RequestUser } from 'src/common/decorators/current-user.decorator';
 
 @ApiTags('Proveedores')
-@UseGuards(AuthGuard('jwt'), RolesGuard)
+@UseGuards(RolesGuard)
 @Roles('user')
 @Controller('proveedores')
 export class ProveedorController {

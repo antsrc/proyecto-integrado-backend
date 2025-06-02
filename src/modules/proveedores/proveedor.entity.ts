@@ -8,7 +8,7 @@ export class Proveedor {
   @Column({ length: 30, unique: true })
   codigo: string;
 
-  @Column({ length: 30, unique: true })
+  @Column({ length: 9, unique: true })
   cif: string;
 
   @Column({ length: 50 })
@@ -17,10 +17,10 @@ export class Proveedor {
   @Column({ length: 30 })
   tipo: string;
 
-  @Column({ length: 100 })
+  @Column({ length: 75 })
   direccion: string;
 
-  @Column({ length: 30 })
+  @Column({ length: 15 })
   telefono: string;
 
   @Column({ length: 100 })

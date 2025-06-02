@@ -8,6 +8,7 @@ import {
   IsString,
   MaxLength,
   Min,
+  Max,
 } from 'class-validator';
 
 export class CreateMensualidadDto {
@@ -29,9 +30,10 @@ export class CreateMensualidadDto {
 
   @ApiProperty()
   @IsNumber({ maxDecimalPlaces: 2 }, { message: 'El importe debe ser un número con hasta 2 decimales' })
-  @Min(1, { message: 'El importe no puede ser negativo' })
+  @Min(1, { message: 'El importe no puede ser menor de 1' })
   @IsNotEmpty({ message: 'El importe es obligatorio' })
   @Type(() => Number)
+  @Max(9999.99, { message: 'El importe no puede tener más de 4 dígitos enteros' })
   importe: number;
 
   @ApiProperty()

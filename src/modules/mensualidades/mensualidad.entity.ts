@@ -12,7 +12,7 @@ export class Mensualidad {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Alquiler, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Alquiler)
   @JoinColumn({ name: 'alquiler_id' })
   alquiler: Alquiler;
 
@@ -22,7 +22,7 @@ export class Mensualidad {
   @Column({ type: 'date', name: 'fecha_fin' })
   fechaFin: Date;
 
-  @Column('decimal', { precision: 8, scale: 2 })
+  @Column('decimal', { precision: 6, scale: 2 })
   importe: number;
 
   @Column({ type: 'date', name: 'fecha_emision' })

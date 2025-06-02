@@ -18,7 +18,7 @@ import { UpdateClienteDto } from './dto/update-cliente.dto';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { RequestUser } from 'src/common/decorators/current-user.decorator';
 
-@UseGuards(AuthGuard('jwt'), RolesGuard)
+@UseGuards(RolesGuard)
 @Roles('user')
 @ApiTags('Clientes')
 @Controller('clientes')
