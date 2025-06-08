@@ -23,6 +23,6 @@ export class Proveedor {
   @Column({ length: 15 })
   telefono: string;
 
-  @Column({ length: 100 })
+  @Column({ length: 200 })
   descripcion: string;
 }

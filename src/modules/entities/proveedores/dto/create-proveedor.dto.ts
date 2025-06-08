@@ -19,7 +19,7 @@ export class CreateProveedorDto {
   @IsString({ message: 'El nombre debe ser una cadena de texto' })
   @IsNotEmpty({ message: 'El nombre es obligatorio' })
   @MaxLength(50, { message: 'El nombre no puede tener más de 50 caracteres' })
-  @Matches(/^[A-Za-z0-9.,\- ]+$/, { message: 'El nombre contiene caracteres no válidos' })
+  @Matches(/^[A-Za-zÁÉÍÓÚáéíóúÑñüÜ0-9.,\- ]+$/, { message: 'El nombre contiene caracteres no válidos' })
   nombre: string;
 
   @ApiProperty()
@@ -46,6 +46,6 @@ export class CreateProveedorDto {
   @ApiProperty()
   @IsString({ message: 'La descripción debe ser una cadena de texto' })
   @IsNotEmpty({ message: 'La descripción es obligatoria' })
-  @MaxLength(100, { message: 'La descripción no puede tener más de 100 caracteres' })
+  @MaxLength(200, { message: 'La descripción no puede tener más de 200 caracteres' })
   descripcion: string;
 }
