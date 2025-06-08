@@ -44,7 +44,7 @@ export class ClienteService {
 
     return clientes.entities.map((cliente, i) => ({
       ...cliente,
-      activo: clientes.raw[i].activo === 1,
+      activo: !!Number(clientes.raw[i].activo),
     }));
   }
 

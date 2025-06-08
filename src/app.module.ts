@@ -13,6 +13,7 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { NotificacionModule } from './modules/utils/notificaciones/notificacion.module';
 import { LogsModule } from './modules/utils/logs/logs.module';
+import { ErrorModule } from './auxiliar/error.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { LogsModule } from './modules/utils/logs/logs.module';
     AuthModule,
     NotificacionModule,
     LogsModule,
+    ErrorModule,
   ],
   controllers: [AppController],
 })

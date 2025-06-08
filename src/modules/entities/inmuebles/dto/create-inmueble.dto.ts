@@ -23,7 +23,7 @@ export class CreateInmuebleDto {
   @IsString({ message: 'La dirección debe ser una cadena de texto' })
   @IsNotEmpty({ message: 'La dirección es obligatoria' })
   @MaxLength(75, { message: 'La dirección no puede tener más de 75 caracteres' })
-  @Matches(/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s.,\-\/()#'+]*$/, { message: 'La dirección contiene caracteres no válidos' })
+  @Matches(/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s.,\-\/()#'+º]*$/, { message: 'La dirección contiene caracteres no válidos' })
   direccion: string;
 
   @ApiProperty()
