@@ -23,7 +23,7 @@ export class Usuario {
   @Column({ length: 60 })
   contrasena: string;
 
-  @Column({ type: 'date', name: 'fecha_creacion', default: () => 'CURRENT_DATE' })
+  @Column({ type: 'date', name: 'fecha_creacion', default: () => 'CURRENT_TIMESTAMP' })
   fechaCreacion: Date;
 
   @Column({ name: 'usuario_creacion', length: 30, default: 'sistema' })
