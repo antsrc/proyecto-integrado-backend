@@ -21,6 +21,7 @@ export class AuthService {
 
   async login(nombre: string, contrasena: string) {
     const usuario = await this.validateUser(nombre, contrasena);
+    await this.usuarioService.registrarInicio(usuario.id, new Date());
     const payload = { nombre: usuario.nombre, rol: usuario.rol };
     const token = this.jwtService.sign(payload);
     return token;

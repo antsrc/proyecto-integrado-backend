@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Mensualidad } from '../mensualidades/mensualidad.entity';
-import { Alquiler } from '../alquileres/alquiler.entity';
-import { Incidencia } from '../incidencias/incidencia.entity';
-import { Reforma } from '../reformas/reforma.entity';
-import { Reparacion } from '../reparaciones/reparacion.entity';
+import { Mensualidad } from '../../entities/mensualidades/mensualidad.entity';
+import { Alquiler } from '../../entities/alquileres/alquiler.entity';
+import { Incidencia } from '../../entities/incidencias/incidencia.entity';
+import { Reforma } from '../../entities/reformas/reforma.entity';
+import { Reparacion } from '../../entities/reparaciones/reparacion.entity';
 import { readdir } from 'fs/promises';
 import { join } from 'path';
 import { errorLogger } from 'src/common/loggers/error.logger';

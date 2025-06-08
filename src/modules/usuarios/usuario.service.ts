@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Usuario } from './usuario.entity';
@@ -13,47 +13,53 @@ export class UsuarioService {
     private readonly usuarioRepository: Repository<Usuario>,
   ) {}
 
-  async create(dto: CreateUsuarioDto): Promise<Usuario | null> {
+  async create(dto: CreateUsuarioDto, currentUser: any): Promise<void> {
+    const usuarioCreacion = currentUser?.nombre ?? 'sistema';
     const hashedPassword = await bcrypt.hash(dto.contrasena, 12);
     const usuario = this.usuarioRepository.create({
       nombre: dto.nombre,
       contrasena: hashedPassword,
+      fechaCreacion: new Date(),
+      usuarioCreacion,
     });
-    const saved = await this.usuarioRepository.save(usuario);
-    return this.findOne(saved.id);
+    await this.usuarioRepository.save(usuario);
   }
 
   async findAll(): Promise<Usuario[]> {
     return this.usuarioRepository.find({
-      select: ['id', 'nombre', 'rol'],
+      select: ['id', 'nombre', 'rol', 'usuarioCreacion', 'fechaCreacion', 'ultimoInicio'],
     });
   }
 
-  async findOne(id: number): Promise<Usuario | null> {
-    return this.usuarioRepository.findOne({
+  private async findOne(id: number): Promise<Usuario> {
+    const usuario = await this.usuarioRepository.findOne({
       where: { id },
       select: ['id', 'nombre', 'rol']
     });
+    if (!usuario) throw new NotFoundException('Usuario no encontrado');
+    return usuario;
   }
 
   async findByNombre(nombre: string): Promise<Usuario | null> {
-    return this.usuarioRepository.findOne({ where: { nombre } });
+    return this.usuarioRepository.findOne({ where: { nombre }, select: ['id', 'nombre', 'rol', 'contrasena'] });
   }
 
-  async update(id: number, dto: UpdateUsuarioDto): Promise<Usuario | null> {
+  async updatePassword(id: number, dto: UpdateUsuarioDto): Promise<void> {
     const usuario = await this.findOne(id);
-    if (!usuario) return null;
+    if (usuario.rol === 'admin') {
+      throw new ForbiddenException('Operación no permitida');
+    }
     const hashedPassword = await bcrypt.hash(dto.contrasena, 10);
-    await this.usuarioRepository.update(id, {
-      contrasena: hashedPassword,
-    });
-    return this.findOne(id);
+    await this.usuarioRepository.update(id, { contrasena: hashedPassword });
   }
 
-  async remove(id: number): Promise<Usuario | null> {
-    const usuario = await this.findOne(id);
-    if (!usuario) return null;
+  async registrarInicio(id: number, fecha: Date): Promise<void> {
+    await this.findOne(id);
+    await this.usuarioRepository.update(id, { ultimoInicio: fecha });
+  }
+
+  async remove(id: number): Promise<void> {
+    await this.findOne(id);
     await this.usuarioRepository.delete(id);
-    return usuario;
   }
 }

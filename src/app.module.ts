@@ -1,17 +1,18 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { InmuebleModule } from './modules/inmuebles/inmueble.module';
-import { ClienteModule } from './modules/clientes/cliente.module';
-import { ProveedorModule } from './modules/proveedores/proveedor.module';
-import { AlquilerModule } from './modules/alquileres/alquiler.module';
-import { ReformaModule } from './modules/reformas/reforma.module';
-import { IncidenciaModule } from './modules/incidencias/incidencias.module';
-import { MensualidadModule } from './modules/mensualidades/mensualidad.module';
+import { InmuebleModule } from './modules/entities/inmuebles/inmueble.module';
+import { ClienteModule } from './modules/entities/clientes/cliente.module';
+import { ProveedorModule } from './modules/entities/proveedores/proveedor.module';
+import { AlquilerModule } from './modules/entities/alquileres/alquiler.module';
+import { ReformaModule } from './modules/entities/reformas/reforma.module';
+import { IncidenciaModule } from './modules/entities/incidencias/incidencias.module';
+import { MensualidadModule } from './modules/entities/mensualidades/mensualidad.module';
 import { UsuarioModule } from './modules/usuarios/usuario.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { NotificacionModule } from './modules/notificaciones/notificacion.module';
+import { NotificacionModule } from './modules/utils/notificaciones/notificacion.module';
+import { LogsModule } from './modules/utils/logs/logs.module';
 
 @Module({
   imports: [
@@ -43,7 +44,8 @@ import { NotificacionModule } from './modules/notificaciones/notificacion.module
     MensualidadModule,
     UsuarioModule,
     AuthModule,
-    NotificacionModule
+    NotificacionModule,
+    LogsModule,
   ],
   controllers: [AppController],
 })

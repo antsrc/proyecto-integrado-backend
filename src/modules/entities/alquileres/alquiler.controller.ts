@@ -18,7 +18,7 @@ import { ApiTags, ApiOperation, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { uploadPdfOptions } from 'src/shared/options/upload-pdf.options';
 import { AuthGuard } from '@nestjs/passport';
-import { Roles } from '../../common/decorators/roles.decorator';
+import { Roles } from 'src/common/decorators/roles.decorator';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { RequestUser } from 'src/common/decorators/current-user.decorator';
 

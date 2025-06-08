@@ -1,15 +1,15 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { Proveedor } from 'src/modules/proveedores/proveedor.entity';
+import { Cliente } from 'src/modules/entities/clientes/cliente.entity';
 import { IObservacion } from 'src/shared/interfaces/observacion.interface';
 
-@Entity('observacion_proveedor')
+@Entity('observacion_cliente')
 export class Observacion implements IObservacion {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Proveedor)
-  @JoinColumn({ name: 'proveedor_id' })
-  proveedor: Proveedor;
+  @ManyToOne(() => Cliente)
+  @JoinColumn({ name: 'cliente_id' })
+  cliente: Cliente;
 
   @Column({ type: 'text' })
   comentario: string;

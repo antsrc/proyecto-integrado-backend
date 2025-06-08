@@ -11,72 +11,72 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { Roles } from '../../common/decorators/roles.decorator';
+import { Roles } from '../../../common/decorators/roles.decorator';
 import { RolesGuard } from 'src/auth/roles.guard';
-import { MensualidadService } from './mensualidad.service';
-import { CreateMensualidadDto } from './dto/create-mensualidad.dto';
-import { UpdateMensualidadDto } from './dto/update-mensualidad.dto';
+import { ReparacionService } from './reparacion.service';
+import { CreateReparacionDto } from './dto/create-reparacion.dto';
+import { UpdateReparacionDto } from './dto/update-reparacion.dto';
 import { ApiTags, ApiOperation, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { RequestUser } from 'src/common/decorators/current-user.decorator';
-import { Mensualidad } from './mensualidad.entity';
+import { Reparacion } from './reparacion.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { uploadPdfOptions } from 'src/shared/options/upload-pdf.options';
 
 @UseGuards(RolesGuard)
 @Roles('user')
-@ApiTags('Mensualidades')
-@Controller('mensualidades')
-export class MensualidadController {
-  constructor(private readonly mensualidadService: MensualidadService) {}
+@ApiTags('Reparaciones')
+@Controller('reparaciones')
+export class ReparacionController {
+  constructor(private readonly reparacionService: ReparacionService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Crear una nueva mensualidad' })
+  @ApiOperation({ summary: 'Crear una nueva reparación' })
   create(
-    @Body() createMensualidadDto: CreateMensualidadDto,
+    @Body() createReparacionDto: CreateReparacionDto,
     @RequestUser() user: { nombre: string },
   ): Promise<void> {
-    return this.mensualidadService.create(createMensualidadDto, user);
+    return this.reparacionService.create(createReparacionDto, user);
   }
 
   @Get()
-  @ApiOperation({ summary: 'Listar todas las mensualidades' })
-  findAll(): Promise<Mensualidad[]> {
-    return this.mensualidadService.findAll();
+  @ApiOperation({ summary: 'Listar todas las reparaciones' })
+  findAll(): Promise<Reparacion[]> {
+    return this.reparacionService.findAll();
   }
-
+  
   @Get('facturas')
-  @ApiOperation({ summary: 'Obtener lista de IDs de mensualidades con PDF de factura' })
+  @ApiOperation({ summary: 'Obtener lista de IDs de reparaciones con PDF de factura' })
   getIdsConFactura() {
-    return this.mensualidadService.getIdsConFactura();
+    return this.reparacionService.getIdsConFactura();
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Obtener una mensualidad por ID' })
+  @ApiOperation({ summary: 'Obtener una reparación por ID' })
   findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.mensualidadService.findOne(id);
+    return this.reparacionService.findOne(id);
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Actualizar una mensualidad' })
+  @ApiOperation({ summary: 'Actualizar una reparación' })
   update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateMensualidadDto: UpdateMensualidadDto,
+    @Body() updateReparacionDto: UpdateReparacionDto,
     @RequestUser() user: { nombre: string },
   ): Promise<void> {
-    return this.mensualidadService.update(id, updateMensualidadDto, user);
+    return this.reparacionService.update(id, updateReparacionDto, user);
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Eliminar una mensualidad' })
+  @ApiOperation({ summary: 'Eliminar una reparación' })
   remove(
     @Param('id', ParseIntPipe) id: number,
     @RequestUser() user: { nombre: string },
   ): Promise<void> {
-    return this.mensualidadService.remove(id, user);
+    return this.reparacionService.remove(id, user);
   }
 
   @Patch(':id/factura')
-  @ApiOperation({ summary: 'Actualizar la factura (PDF) de una mensualidad' })
+  @ApiOperation({ summary: 'Actualizar la factura (PDF) de una reparación' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     description: 'Nuevo documento PDF de la factura',
@@ -94,6 +94,6 @@ export class MensualidadController {
     @Param('id', ParseIntPipe) id: number,
     @UploadedFile() documento: Express.Multer.File,
   ): Promise<string> {
-    return this.mensualidadService.updateFactura(id, documento?.filename);
+    return this.reparacionService.updateFactura(id, documento?.filename);
   }
 }

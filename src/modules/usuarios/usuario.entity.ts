@@ -20,6 +20,15 @@ export class Usuario {
   @Column({ length: 30, unique: true })
   nombre: string;
 
-  @Column({ length: 100 })
+  @Column({ length: 60 })
   contrasena: string;
+
+  @Column({ type: 'date', name: 'fecha_creacion', default: () => 'CURRENT_DATE' })
+  fechaCreacion: Date;
+
+  @Column({ name: 'usuario_creacion', length: 30, default: 'sistema' })
+  usuarioCreacion: string;
+
+  @Column({ type: 'date', name: 'ultimo_inicio', nullable: true, default: null })
+  ultimoInicio: Date | null;
 }

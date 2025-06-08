@@ -9,7 +9,7 @@ import {
   ParseIntPipe,
   UseGuards,
 } from '@nestjs/common';
-import { Roles } from '../../common/decorators/roles.decorator';
+import { Roles } from 'src/common/decorators/roles.decorator';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { InmuebleService } from './inmueble.service';
 import { CreateInmuebleDto } from './dto/create-inmueble.dto';
